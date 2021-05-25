@@ -41,7 +41,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 
     for i in range(0, rowsCols1[0]):
         k, dist = dsearchn(intersectionPoints, intersectionPoints1[i, :])
-        if dist < 113:
+        if dist < 100:
             K = np.vstack((K, k))
             indOld = np.vstack((indOld, i))
             d_xy = intersectionPoints[k][:] - intersectionPoints1[i][:]
@@ -52,7 +52,6 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     indOld = np.reshape(indOld, len(indOld))
     vec = np.arange(0, rowsCols1[0])
     vec = np.delete(vec, indOld.astype(int))
-    print(vec)
     for j in vec:
         q, _ = dsearchn(intersectionPoints1[indOld.astype(int)], intersectionPoints1[j])
         k, _ = dsearchn(intersectionPoints, intersectionPoints1[j])
@@ -68,7 +67,14 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 
     return sumPoints, sumPointsc, D_xy_mean_total
 
-
+def plotIntPoints(totalGrid):
+   
+    for i in range(0, len(totalGrid)):
+        plt.plot(totalGrid[i][0], totalGrid[i][1], '+b')
+    plt.show()
+   #for i in range(0,len(totalGrid)):
+    #    plt.plot(totalGrid[i][0],totalGrid[i][1],'+b')
+     #   plt.show()
 
 if __name__ == '__main__':
     

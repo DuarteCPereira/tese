@@ -114,6 +114,11 @@ def findIntPoints(img1):
 
     return intersectionPoints,img
 
+def findInitPoints(img1):
+    intersectionPoints, _ = findIntPoints(img1)
+    totalGrid = intersectionPoints
+    return np.asarray(intersectionPoints), np.asarray(totalGrid)
+
 def findCircles(img):
     cimg=np.copy(img)
     img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
