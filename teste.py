@@ -54,7 +54,7 @@ def main():
             #lines,cimg=vidProc.binaryGridDetection(frame)
             
             intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame)
-            totalGrid, totalGridc, D_xy_mean_total = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total)
+            totalGrid, oldPoints, newPoints, D_xy_mean_total = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total)
             
             #make the mew frame the old for the next iteration of cycle
             intersectionPoints = np.asarray(intersectionPoints1)
@@ -71,6 +71,6 @@ def main():
         print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
-    cellSum.plotIntPoints(totalGrid)
+    cellSum.plotIntPoints(totalGrid, '+b')
     
 main()

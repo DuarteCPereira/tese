@@ -64,17 +64,25 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     sumPoints = np.vstack((sumPoints, newPointsCorr))
     D_xy_mean = np.mean(D_xy, axis=0)
     D_xy_mean_total = D_xy_mean_total + D_xy_mean
+    plotab(newPoints, oldPoints, '+r', '+b')
 
-    return sumPoints, sumPointsc, D_xy_mean_total
+    return sumPoints, oldPoints, newPoints,  D_xy_mean_total
 
-def plotIntPoints(totalGrid):
+def plotIntPoints(totalGrid, marker):
    
     for i in range(0, len(totalGrid)):
-        plt.plot(totalGrid[i][0], totalGrid[i][1], '+b')
+        plt.plot(totalGrid[i][0], totalGrid[i][1], marker)
     plt.show()
    #for i in range(0,len(totalGrid)):
     #    plt.plot(totalGrid[i][0],totalGrid[i][1],'+b')
      #   plt.show()
+
+def plotab(a, b, marker_a, marker_b):
+    for i in range(0, len(a)):
+        plt.plot(a[i][0], a[i][1], marker_a)
+    for i in range(0, len(b)):
+        plt.plot(b[i][0], b[i][1], marker_b)
+    plt.show()
 
 if __name__ == '__main__':
     
