@@ -68,7 +68,7 @@ def finddirs(lines):
 
 
 def findIntPoints(img1):
-    _,binary = cv2.threshold(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY),90,250,cv2.THRESH_BINARY_INV)
+    _,binary = cv2.threshold(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY),70,200,cv2.THRESH_BINARY_INV)
     img = np.copy(img1)
     # Create the images that will use to extract the horizontal and vertical lines
     horizontal = np.copy(binary)
@@ -76,11 +76,11 @@ def findIntPoints(img1):
 
     # Specify size on horizontal axis
     cols = horizontal.shape[1]
-    horizontal_size = cols // 30
+    horizontal_size = cols // 10
 
     # Specify size on vertical axis
     rows = vertical.shape[0]
-    verticalsize = rows // 20
+    verticalsize = rows // 10
 
     # Create structure element for extracting horizontal lines through morphology operations
     horizontalStructure = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_size, 1))
@@ -88,7 +88,9 @@ def findIntPoints(img1):
 
     # Apply morphology operations
     horizontal = cv2.erode(horizontal, horizontalStructure)
+    horizontal = cv2.dilate(horizontal, horizontalStructure)
     vertical = cv2.erode(vertical, verticalStructure)
+    vertical = cv2.dilate(vertical, verticalStructure)
     img_bwa = cv2.bitwise_and(vertical,horizontal)
     #horizontal = cv2.dilate(horizontal, horizontalStructure)
     # Show extracted horizontal lines
@@ -100,22 +102,24 @@ def findIntPoints(img1):
     contours, hierarchy = cv2.findContours(img_bwa, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     intersectionPoints=[]
     for c in contours:
-        # calculate moments for each contour
-        M = cv2.moments(c)
-        if M["m00"] != 0:
-            # calculate x,y coordinate of center
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
-            intersectionPoints.append([cX,cY])
-            cv2.circle(img, (cX, cY), 3, (0, 0, 255), -1)
-            cv2.putText(img_bwa, "centroid", (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        if cv2.contourArea(c)>10:
+            # calculate moments for each contour
+            M = cv2.moments(c)
+            if M["m00"] != 0:
+                # calculate x,y coordinate of center
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                intersectionPoints.append([cX,cY])
+                cv2.circle(img, (cX, cY), 3, (0, 0, 255), -1)
+                cv2.circle(img_bwa, (cX, cY), 3, (0, 0, 255), -1)
+                #cv2.putText(img_bwa, "centroid", (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     # display the image
     #show_wait_destroy("Image", img)
 
-    return intersectionPoints,img
+    return intersectionPoints,img, horizontal, vertical, img_bwa
 
 def findInitPoints(img1):
-    intersectionPoints, _ = findIntPoints(img1)
+    intersectionPoints, _, _, _, _ = findIntPoints(img1)
     totalGrid = intersectionPoints
     return np.asarray(intersectionPoints), np.asarray(totalGrid)
 
@@ -139,3 +143,6 @@ def rescaleFrame(frame, scale):
 	dimensions = (width, height)
 
 	return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)
+
+def cropImage(img, x, w, y, h):
+    return img[y:y+h, x:x+h]

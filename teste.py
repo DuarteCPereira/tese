@@ -12,8 +12,6 @@ import cellSum
 #Calling of function that calculates calibration parameters from images on /CalibrationImages
 #calibrateFisheye.getCalibParameters()
 '''
-
-
 def main():
     
     #Import calibration 
@@ -28,7 +26,7 @@ def main():
     
     windowName = "Preview"
     cv2.namedWindow(windowName)
-    cap = cv2.VideoCapture('video_grid.h264')
+    cap = cv2.VideoCapture('test.mp4')
     inital_frame = 5
     fps_count = 1
     #cap.set(3, 1024)
@@ -47,7 +45,7 @@ def main():
         if fps_count >= inital_frame and fps_count < 298:
 
             #find points of the first frame
-            if fps_count - inital_frame == 0:
+            if fps_count == inital_frame:
                 intersectionPoints, totalGrid = vidProc.findInitPoints(frame)
                 D_xy_mean_total = 0
             
@@ -55,7 +53,7 @@ def main():
             #cimg = calibrateFisheye.undist(frame,Kd,Dd)
             #lines,cimg=vidProc.binaryGridDetection(frame)
             
-            intersectionPoints1,cimg = vidProc.findIntPoints(frame)
+            intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame)
             totalGrid, totalGridc, D_xy_mean_total = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total)
             
             #make the mew frame the old for the next iteration of cycle
@@ -64,6 +62,9 @@ def main():
             #cimg = vidProc.findCircles(frame)
             cv2.imshow(windowName, frame)
             cv2.imshow("frame", cimg)
+            #cv2.imshow("horizontal", horizontal)
+            #cv2.imshow("vertical", vertical)
+            #cv2.imshow("img_bwa", img_bwa)
             if cv2.waitKey(1) == 27:
                 break
         fps_count +=1

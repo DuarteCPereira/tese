@@ -41,7 +41,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 
     for i in range(0, rowsCols1[0]):
         k, dist = dsearchn(intersectionPoints, intersectionPoints1[i, :])
-        if dist < 100:
+        if dist < 125:
             K = np.vstack((K, k))
             indOld = np.vstack((indOld, i))
             d_xy = intersectionPoints[k][:] - intersectionPoints1[i][:]
