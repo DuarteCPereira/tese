@@ -21,14 +21,14 @@ def main():
 
     Kd=np.array(data_dict['K'])
     Dd=np.array(data_dict['D'])
+    cap.release()
     '''
-    
     
     windowName = "Preview"
     cv2.namedWindow(windowName)
     cap = cv2.VideoCapture('test.mp4')
-    inital_frame = 5
     fps_count = 1
+    inital_frame = 5
     #cap.set(3, 1024)
     #cap.set(4, 576)
     
@@ -42,7 +42,7 @@ def main():
     
         ret, frame = cap.read()
         #Make the code only start getting points after intial_frame
-        if fps_count >= inital_frame and fps_count < 298:
+        if fps_count >= inital_frame and fps_count < 200 and fps_count % 5 == 0:
 
             #find points of the first frame
             if fps_count == inital_frame:
@@ -60,14 +60,14 @@ def main():
             intersectionPoints = np.asarray(intersectionPoints1)
             
             #cimg = vidProc.findCircles(frame)
-            cv2.imshow(windowName, frame)
-            cv2.imshow("frame", cimg)
+            cv2.imshow(windowName, cimg)
+            #cv2.imshow("frame", cimg)
             #cv2.imshow("horizontal", horizontal)
             #cv2.imshow("vertical", vertical)
             #cv2.imshow("img_bwa", img_bwa)
             if cv2.waitKey(1) == 27:
                 break
-        fps_count +=1
+        fps_count += 1
         print(fps_count)
     cv2.destroyAllWindows()
     cap.release()

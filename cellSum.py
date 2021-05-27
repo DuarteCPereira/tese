@@ -41,7 +41,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 
     for i in range(0, rowsCols1[0]):
         k, dist = dsearchn(intersectionPoints, intersectionPoints1[i, :])
-        if dist < 125:
+        if dist < 0.5:
             K = np.vstack((K, k))
             indOld = np.vstack((indOld, i))
             d_xy = intersectionPoints[k][:] - intersectionPoints1[i][:]
@@ -53,18 +53,21 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     vec = np.arange(0, rowsCols1[0])
     vec = np.delete(vec, indOld.astype(int))
     for j in vec:
+        #q é o indice no IP1 do ponto mais próximo ao newPoint
         q, _ = dsearchn(intersectionPoints1[indOld.astype(int)], intersectionPoints1[j])
+        #k é o indice no IP do ponto mais proximo ao newPoint
         k, _ = dsearchn(intersectionPoints, intersectionPoints1[j])
+        #w é o indice na totalGrid onde o newPoint é mais próximo
         w, _ = dsearchn(sumPoints, intersectionPoints1[j] + D_xy_mean_total)
         d_corr = intersectionPoints1[q] - intersectionPoints1[j]
         d_corr1 = sumPoints[w] - intersectionPoints[k]
-        newPoints = np.vstack((newPoints, intersectionPoints1[k]))
+        newPoints = np.vstack((newPoints, intersectionPoints1[j]))
         newPointsCorr = np.vstack((newPointsCorr, intersectionPoints[k] - d_corr + d_corr1))
 
     sumPoints = np.vstack((sumPoints, newPointsCorr))
     D_xy_mean = np.mean(D_xy, axis=0)
     D_xy_mean_total = D_xy_mean_total + D_xy_mean
-    plotab(newPoints, oldPoints, '+r', '+b')
+    plotabc(intersectionPoints, intersectionPoints1, newPoints, '+b', 'xr', '3g')
 
     return sumPoints, oldPoints, newPoints,  D_xy_mean_total
 
@@ -84,12 +87,22 @@ def plotab(a, b, marker_a, marker_b):
         plt.plot(b[i][0], b[i][1], marker_b)
     plt.show()
 
+def plotabc(a, b, c, marker_a, marker_b, marker_c):
+    for i in range(0, len(a)):
+        plt.plot(a[i][0], a[i][1], marker_a)
+    for i in range(0, len(b)):
+        plt.plot(b[i][0], b[i][1], marker_b)
+    for i in range(0, len(c)):
+        plt.plot(c[i][0], c[i][1], marker_c)
+    plt.show()
+
 if __name__ == '__main__':
     
     frames = {
         0: np.array([[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]]),
     }
-    a = np.array([[4, 1], [4, 2], [4, 3]])
+    #a = np.array([[4, 1], [4, 2], [4, 3]])
+    a = np.array([[4, 1]])
     frames[1] = np.subtract(np.concatenate((frames[0], a), axis=0), [0.1, 0.1])
     for i in range(2, 10):
         frames[i] = np.subtract(frames[i - 1], [0.1, 0.1])
@@ -108,9 +121,9 @@ if __name__ == '__main__':
         framesc[i] = np.subtract(framesc[i - 1], [0.1, 0.1])
     framesc[10] = np.concatenate((framesc[9], [[3.6, 0.6], [3.6, 1.6]]))
     totalGridc = {0: framesc[0]}
-    #%%
+    
     for i in range(1,len(frames)):
-        totalGrid[i], totalGridc[i], D_xy_mean_total=continuousGrid(frames[i-1],frames[i],totalGrid[i-1],totalGridc[i-1],framesc[i-1],framesc[i],gridRotation,gridRotation1,D_xy_mean_total)
+        totalGrid[i], _, _, D_xy_mean_total=continuousGrid(frames[i-1],frames[i],totalGrid[i-1],totalGrid[i-1],framesc[i-1],framesc[i],gridRotation,gridRotation1,D_xy_mean_total)
 
 
     for i in range(0,len(totalGrid[list(totalGrid.keys())[-1]])):
