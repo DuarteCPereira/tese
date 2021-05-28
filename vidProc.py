@@ -110,7 +110,7 @@ def findIntPoints(img1):
                 # calculate x,y coordinate of center
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                if cX < cols - 150:
+                if cX < cols - 500:
                     intersectionPoints.append([cX,cY])
                     cv2.circle(img, (cX, cY), 3, (0, 0, 255), -1)
                     cv2.circle(img_bwa, (cX, cY), 3, (0, 0, 255), -1)

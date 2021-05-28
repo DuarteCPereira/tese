@@ -37,11 +37,10 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     indOld = np.array([]).reshape(0, 1)
     oldPointCounter = 0
     oldPointCounterc = 0
-    d_xy = 0
 
     for i in range(0, rowsCols1[0]):
         k, dist = dsearchn(intersectionPoints, intersectionPoints1[i, :])
-        if dist < 0.5:
+        if dist < 110:
             K = np.vstack((K, k))
             indOld = np.vstack((indOld, i))
             d_xy = intersectionPoints[k][:] - intersectionPoints1[i][:]
@@ -52,21 +51,27 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     indOld = np.reshape(indOld, len(indOld))
     vec = np.arange(0, rowsCols1[0])
     vec = np.delete(vec, indOld.astype(int))
+    D_xy_mean = np.mean(D_xy, axis=0)
+    D_xy_mean_total = D_xy_mean_total + D_xy_mean
+    IP1_olds = intersectionPoints1[indOld.astype(int)]
     for j in vec:
         #q é o indice no IP1 do ponto mais próximo ao newPoint
-        q, _ = dsearchn(intersectionPoints1[indOld.astype(int)], intersectionPoints1[j])
+        q, _ = dsearchn(IP1_olds, intersectionPoints1[j])
         #k é o indice no IP do ponto mais proximo ao newPoint
         k, _ = dsearchn(intersectionPoints, intersectionPoints1[j])
         #w é o indice na totalGrid onde o newPoint é mais próximo
-        w, _ = dsearchn(sumPoints, intersectionPoints1[j] + D_xy_mean_total)
-        d_corr = intersectionPoints1[q] - intersectionPoints1[j]
+        w, _ = dsearchn(sumPoints, IP1_olds[q] + D_xy_mean_total)
+        d_corr = IP1_olds[q] - intersectionPoints1[j]
         d_corr1 = sumPoints[w] - intersectionPoints[k]
+        print('totalGridPoint ->',sumPoints[w], 'IP_old ->', intersectionPoints[k], 'IP1_old ->', IP1_olds[q], 'IP1_new ->', intersectionPoints1[j])
         newPoints = np.vstack((newPoints, intersectionPoints1[j]))
-        newPointsCorr = np.vstack((newPointsCorr, intersectionPoints[k] - d_corr + d_corr1))
+        a = sumPoints[w] - d_corr
+        newPointsCorr = np.vstack((newPointsCorr, a))
+        #newPointsCorr = np.vstack((newPointsCorr, intersectionPoints[k] - d_corr + d_corr1))
 
+    print(newPointsCorr)
     sumPoints = np.vstack((sumPoints, newPointsCorr))
-    D_xy_mean = np.mean(D_xy, axis=0)
-    D_xy_mean_total = D_xy_mean_total + D_xy_mean
+    print(D_xy_mean_total)
     plotabc(intersectionPoints, intersectionPoints1, newPoints, '+b', 'xr', '3g')
 
     return sumPoints, oldPoints, newPoints,  D_xy_mean_total
@@ -110,7 +115,7 @@ if __name__ == '__main__':
     gridRotation = 0
     gridRotation1 = 0
     totalGrid = {0: frames[0]}
-    D_xy_mean_total = 0
+    D_xy_mean_total = [0, 0]
 
     framesc = {
         0: np.array([[1.5, 1.5], [2.5, 1.5], [1.5, 2.5], [2.5, 2.5]]),
