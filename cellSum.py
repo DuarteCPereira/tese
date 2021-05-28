@@ -63,16 +63,16 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
         w, _ = dsearchn(sumPoints, IP1_olds[q] + D_xy_mean_total)
         d_corr = IP1_olds[q] - intersectionPoints1[j]
         d_corr1 = sumPoints[w] - intersectionPoints[k]
-        print('totalGridPoint ->',sumPoints[w], 'IP_old ->', intersectionPoints[k], 'IP1_old ->', IP1_olds[q], 'IP1_new ->', intersectionPoints1[j])
+        #print('totalGridPoint ->',sumPoints[w], 'IP_old ->', intersectionPoints[k], 'IP1_old ->', IP1_olds[q], 'IP1_new ->', intersectionPoints1[j])
         newPoints = np.vstack((newPoints, intersectionPoints1[j]))
         a = sumPoints[w] - d_corr
         newPointsCorr = np.vstack((newPointsCorr, a))
         #newPointsCorr = np.vstack((newPointsCorr, intersectionPoints[k] - d_corr + d_corr1))
 
-    print(newPointsCorr)
+    #print(newPointsCorr)
     sumPoints = np.vstack((sumPoints, newPointsCorr))
-    print(D_xy_mean_total)
-    plotabc(intersectionPoints, intersectionPoints1, newPoints, '+b', 'xr', '3g')
+    #print(D_xy_mean_total)
+    #plotabc(intersectionPoints, intersectionPoints1, newPoints, '+b', 'xr', '3g')
 
     return sumPoints, oldPoints, newPoints,  D_xy_mean_total
 

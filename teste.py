@@ -28,7 +28,7 @@ def main():
     cv2.namedWindow(windowName)
     cap = cv2.VideoCapture('test.mp4')
     fps_count = 1
-    inital_frame = 3
+    inital_frame = 5
     #cap.set(3, 1024)
     #cap.set(4, 576)
     
@@ -42,7 +42,7 @@ def main():
     
         ret, frame = cap.read()
         #Make the code only start getting points after intial_frame
-        if fps_count >= inital_frame and fps_count < 200 and fps_count % 3 == 0:
+        if fps_count >= inital_frame and fps_count < 200 and fps_count % 5 == 0:
 
             #find points of the first frame
             if fps_count == inital_frame:
@@ -60,7 +60,6 @@ def main():
             intersectionPoints = np.asarray(intersectionPoints1)
             
             #cimg = vidProc.findCircles(frame)
-            cellSum.plotIntPoints(totalGrid, '+b')
             cv2.imshow(windowName, cimg)
             #cv2.imshow("frame", cimg)
             #cv2.imshow("horizontal", horizontal)
@@ -72,5 +71,6 @@ def main():
         print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
+    cellSum.plotIntPoints(totalGrid, '+b')
     
 main()
