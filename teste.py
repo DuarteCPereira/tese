@@ -42,7 +42,7 @@ def main():
     
         ret, frame = cap.read()
         #Make the code only start getting points after intial_frame
-        if fps_count >= inital_frame and fps_count < 200 and fps_count % 5 == 0:
+        if fps_count >= inital_frame and fps_count < 200 and fps_count % 1 == 0:
 
             #find points of the first frame
             if fps_count == inital_frame:
