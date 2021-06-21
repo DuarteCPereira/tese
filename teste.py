@@ -46,6 +46,8 @@ def main():
 
             #find points of the first frame
             if fps_count == inital_frame:
+                centerPoints = np.array([]).reshape(0, 2)
+                centerPoints = np.vstack((centerPoints, np.asarray(frame.shape[:2])))
                 intersectionPoints, totalGrid = vidProc.findInitPoints(frame)
                 D_xy_mean_total = [0, 0]
             
@@ -55,6 +57,8 @@ def main():
             
             intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame)
             totalGrid, oldPoints, newPoints, D_xy_mean_total = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total)
+            print(centerPoints[-1,:])
+            centerPoints = np.vstack((centerPoints, centerPoints[-1,:] + D_xy_mean_total))
             
             #make the mew frame the old for the next iteration of cycle
             intersectionPoints = np.asarray(intersectionPoints1)
