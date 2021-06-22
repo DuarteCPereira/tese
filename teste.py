@@ -27,7 +27,7 @@ def main():
     
     windowName = "Preview"
     cv2.namedWindow(windowName)
-    cap = cv2.VideoCapture('video_grid_new_cam.h264')
+    cap = cv2.VideoCapture('video_grid_new_cam1.h264')
     fps_count = 1
     inital_frame = 100
     #cap.set(3, 1024)
@@ -78,6 +78,7 @@ def main():
     cv2.destroyAllWindows()
     cap.release()
     cellSum.plotIntPoints(totalGrid, '+b')
-    grid_map.nRowsCols(totalGrid, 100)
+    n_rows, n_cols = grid_map.nRowsCols(totalGrid, 70)
+    grid_map.createMesh(n_rows, n_cols, 20)
     
 main()
