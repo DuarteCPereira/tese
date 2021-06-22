@@ -7,8 +7,8 @@ import yaml
 
 ################ FIND CHESSBOARD CORNERS - OBJECT POINTS AND IMAGE POINTS #############################
 
-chessboardSize = (9,6)
-frameSize = (1280,720)
+chessboardSize = (7, 4)
+frameSize = (1920, 1080)
 
 
 
@@ -26,7 +26,7 @@ objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
 
-images = glob.glob(r'GridCameraCalibration3/*.jpg')
+images = glob.glob(r'calibration_images/*.jpg')
 
 for image in images:
 
@@ -68,7 +68,7 @@ with open("calibration_matrix.yaml", "w") as f:
 
 ############## UNDISTORTION #####################################################
 
-img = cv.imread(r'GridCameraCalibration3/chess7.jpg')
+img = cv.imread(r'calibration_images/c8.jpg')
 h,  w = img.shape[:2]
 newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
 
@@ -79,7 +79,7 @@ dst = cv.undistort(img, cameraMatrix, dist, None, newCameraMatrix)
 
 # crop the image
 x, y, w, h = roi
-#dst = dst[y:y+h, x:x+w]
+dst = dst[y:y+h, x:x+w]
 cv.imwrite('caliResult1.png', dst)
 
 
@@ -90,7 +90,7 @@ dst = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
 
 # crop the image
 x, y, w, h = roi
-#dst = dst[y:y+h, x:x+w]
+dst = dst[y:y+h, x:x+w]
 cv.imwrite('caliResult2.png', dst)
 
 

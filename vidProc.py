@@ -102,6 +102,7 @@ def findIntPoints(img1):
     # find contours in the binary image
     contours, hierarchy = cv2.findContours(img_bwa, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     intersectionPoints=[]
+    cv2.rectangle(img, (200, 50), (cols-200, rows-100), (0, 255, 20), 2)
     for c in contours:
         if cv2.contourArea(c)>80:
             # calculate moments for each contour
@@ -110,7 +111,7 @@ def findIntPoints(img1):
                 # calculate x,y coordinate of center
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                if cX < cols - 500:
+                if cX < cols - 200 and cX > 200 and cY < rows - 100 and cY > 50:
                     intersectionPoints.append([cX,cY])
                     cv2.circle(img, (cX, cY), 3, (0, 0, 255), -1)
                     cv2.circle(img_bwa, (cX, cY), 3, (0, 0, 255), -1)

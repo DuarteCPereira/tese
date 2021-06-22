@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import vidProc
 import calibrateFisheye
 import cellSum
+import grid_map
 
 #Uncoment if in need to calculate new parameters
 '''
@@ -26,9 +27,9 @@ def main():
     
     windowName = "Preview"
     cv2.namedWindow(windowName)
-    cap = cv2.VideoCapture('test.mp4')
+    cap = cv2.VideoCapture('video_grid_new_cam.h264')
     fps_count = 1
-    inital_frame = 5
+    inital_frame = 100
     #cap.set(3, 1024)
     #cap.set(4, 576)
     
@@ -42,7 +43,7 @@ def main():
     
         ret, frame = cap.read()
         #Make the code only start getting points after intial_frame
-        if fps_count >= inital_frame and fps_count < 200 and fps_count % 5 == 0:
+        if fps_count >= inital_frame and fps_count < 400 and fps_count % 5 == 0:
 
             #find points of the first frame
             if fps_count == inital_frame:
@@ -65,7 +66,7 @@ def main():
             
             #cimg = vidProc.findCircles(frame)
             cv2.imshow(windowName, cimg)
-            cellSum.plotIntPoints(totalGrid, '+b')
+            #cellSum.plotIntPoints(totalGrid, '+b')
             #cv2.imshow("frame", cimg)
             #cv2.imshow("horizontal", horizontal)
             #cv2.imshow("vertical", vertical)
@@ -77,5 +78,6 @@ def main():
     cv2.destroyAllWindows()
     cap.release()
     cellSum.plotIntPoints(totalGrid, '+b')
+    grid_map.nRowsCols(totalGrid, 100)
     
 main()
