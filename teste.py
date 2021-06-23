@@ -47,8 +47,10 @@ def main():
 
             #find points of the first frame
             if fps_count == inital_frame:
-                centerPoints = np.array([]).reshape(0, 2)
-                centerPoints = np.vstack((centerPoints, np.asarray(frame.shape[:2])))
+                centerPoint = np.array([]).reshape(0, 2)
+                midFrame = np.flip(np.asarray(frame.shape[:2])/2)
+                centerPoint = np.vstack((centerPoint, midFrame))
+                print(centerPoint[-1,:])
                 intersectionPoints, totalGrid = vidProc.findInitPoints(frame)
                 D_xy_mean_total = [0, 0]
             
@@ -57,16 +59,15 @@ def main():
             #lines,cimg=vidProc.binaryGridDetection(frame)
             
             intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame)
-            totalGrid, oldPoints, newPoints, D_xy_mean_total = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total)
-            print(centerPoints[-1,:])
-            centerPoints = np.vstack((centerPoints, centerPoints[-1,:] + D_xy_mean_total))
+            totalGrid, oldPoints, newPoints, D_xy_mean_total, centerPoint = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total, centerPoint, midFrame)
+            print(centerPoint[-1,:])
             
             #make the mew frame the old for the next iteration of cycle
             intersectionPoints = np.asarray(intersectionPoints1)
             
             #cimg = vidProc.findCircles(frame)
             cv2.imshow(windowName, cimg)
-            #cellSum.plotIntPoints(totalGrid, '+b')
+            cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
             #cv2.imshow("frame", cimg)
             #cv2.imshow("horizontal", horizontal)
             #cv2.imshow("vertical", vertical)
@@ -77,7 +78,7 @@ def main():
         print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
-    cellSum.plotIntPoints(totalGrid, '+b')
+    cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
     n_rows, n_cols = grid_map.nRowsCols(totalGrid, 70)
     grid_map.createMesh(n_rows, n_cols, 20)
     

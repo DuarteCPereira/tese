@@ -12,7 +12,7 @@ def dsearchn(nodes, node):
 
 
 def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPointsc, centroidPoints, centroidPoints1,
-                   gridRotation, gridRotation1, D_xy_mean_total):
+                   gridRotation, gridRotation1, D_xy_mean_total, centerPoint, midFrame):
     gridRotation1 = -gridRotation1
     gridRotation = -gridRotation
     rotMtx1 = [[math.cos(gridRotation1), -math.sin(gridRotation1)], [math.sin(gridRotation1), math.cos(gridRotation1)]]
@@ -69,12 +69,17 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
         newPointsCorr = np.vstack((newPointsCorr, a))
         #newPointsCorr = np.vstack((newPointsCorr, intersectionPoints[k] - d_corr + d_corr1))
 
+    cIP1, _ = dsearchn(intersectionPoints1, midFrame)
+    cIP, _ = dsearchn(intersectionPoints, intersectionPoints1[cIP1])
+    d = intersectionPoints[cIP] - intersectionPoints1[cIP1]
+    centerPointCorr = centerPoint[-1, :] + d
+    centerPoint = np.vstack((centerPoint, centerPointCorr))
     #print(newPointsCorr)
     sumPoints = np.vstack((sumPoints, newPointsCorr))
     #print(D_xy_mean_total)
-    #plotabc(intersectionPoints, intersectionPoints1, newPoints, '+b', 'xr', '3g')
+    plotabc(intersectionPoints, intersectionPoints1, midFrame, '+b', 'xr', '3g')
 
-    return sumPoints, oldPoints, newPoints,  D_xy_mean_total
+    return sumPoints, oldPoints, newPoints,  D_xy_mean_total, centerPoint
 
 def plotIntPoints(totalGrid, marker):
    
@@ -86,19 +91,23 @@ def plotIntPoints(totalGrid, marker):
      #   plt.show()
 
 def plotab(a, b, marker_a, marker_b):
-    for i in range(0, len(a)):
-        plt.plot(a[i][0], a[i][1], marker_a)
-    for i in range(0, len(b)):
-        plt.plot(b[i][0], b[i][1], marker_b)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    #plt.grid(True, linewidth=0.3, color='#808080', linestyle='-')
+    ax.plot(a[:, 0], a[:, 1], marker_a)
+    ax.plot(b[:, 0], b[:, 1], marker_b)
+    #for i in range(1, len(b)):
+        #ax.quiver(b[i, 0], b[i, 1], b[i, 0]-b[i-1, 0], b[i, 1]-b[i-1, 1], color = marker_b, scale=100, scale_units='inches', width = 0.003)
+
     plt.show()
 
 def plotabc(a, b, c, marker_a, marker_b, marker_c):
-    for i in range(0, len(a)):
-        plt.plot(a[i][0], a[i][1], marker_a)
-    for i in range(0, len(b)):
-        plt.plot(b[i][0], b[i][1], marker_b)
-    for i in range(0, len(c)):
-        plt.plot(c[i][0], c[i][1], marker_c)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(a[:, 0], a[:, 1], marker_a)
+    ax.plot(b[:, 0], b[:, 1], marker_b)
+    ax.plot(c[0], c[1], marker_c)
     plt.show()
 
 if __name__ == '__main__':
