@@ -4,6 +4,7 @@ import yaml
 import numpy as np
 import math
 from matplotlib import pyplot as plt
+import cellSum
 
 
 def undist(img,data_dict):
@@ -67,7 +68,7 @@ def finddirs(lines):
     return dir1,dir2  
 
 
-def findIntPoints(img1):
+def findIntPoints(img1, midFrame):
     _,binary = cv2.threshold(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY),70,200,cv2.THRESH_BINARY_INV)
     img = np.copy(img1)
     #show_wait_destroy("Image", binary)
@@ -102,7 +103,8 @@ def findIntPoints(img1):
     # find contours in the binary image
     contours, hierarchy = cv2.findContours(img_bwa, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     intersectionPoints=[]
-    cv2.rectangle(img, (200, 50), (cols-200, rows-100), (0, 255, 20), 2)
+    cv2.rectangle(img, (200, 50), (cols-200, rows-50), (0, 255, 20), 2)
+    drawCenter(img, midFrame)
     for c in contours:
         if cv2.contourArea(c)>80:
             # calculate moments for each contour
@@ -111,7 +113,7 @@ def findIntPoints(img1):
                 # calculate x,y coordinate of center
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                if cX < cols - 200 and cX > 200 and cY < rows - 100 and cY > 50:
+                if cX < cols - 200 and cX > 200 and cY < rows - 100 and cY > 100:
                     intersectionPoints.append([cX,cY])
                     cv2.circle(img, (cX, cY), 3, (0, 0, 255), -1)
                     cv2.circle(img_bwa, (cX, cY), 3, (0, 0, 255), -1)
@@ -120,15 +122,26 @@ def findIntPoints(img1):
     #show_wait_destroy('img_bwa', img_bwa)
     return intersectionPoints,img, horizontal, vertical, img_bwa
 
-def findInitPoints(img1):
-    intersectionPoints, _, _, _, _ = findIntPoints(img1)
+def findInitPoints(img1, midFrame):
+    intersectionPoints, _, _, _, _ = findIntPoints(img1, midFrame)
     totalGrid = intersectionPoints
     return np.asarray(intersectionPoints), np.asarray(totalGrid)
 
 def findCircles(img):
     cimg=np.copy(img)
-    img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    circles = cv2.HoughCircles(img_gray,cv2.HOUGH_GRADIENT,1.2,50, param1=100,param2=30,minRadius=10,maxRadius=20)
+
+    # Convert BGR to HSV
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    #define range of bluevcolor in hsv
+    lower_blue = np.array([110,50,50])
+    upper_blue = np.array([130,255,255])
+
+    # Threshold the HSV image to get only blue colors
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    show_wait_destroy('123', mask)
+    circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT,1.5,20, param1=90,param2=20,minRadius=20,maxRadius=50)
     if circles is not None:
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
@@ -136,7 +149,74 @@ def findCircles(img):
             cv2.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
             cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
-    return(cimg)
+    
+    return(cimg, i[:2])
+
+def four_point_transform(image, pts):
+	# obtain a consistent order of the points and unpack them
+	# individually
+    #first entry in the list is the top-left,
+	# the second entry is the top-right, the third is the
+	# bottom-right, and the fourth is the bottom-left
+	
+	(tl, tr, br, bl) = rect
+	# compute the width of the new image, which will be the
+	# maximum distance between bottom-right and bottom-left
+	# x-coordiates or the top-right and top-left x-coordinates
+	widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+	widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+	maxWidth = max(int(widthA), int(widthB))
+	# compute the height of the new image, which will be the
+	# maximum distance between the top-right and bottom-right
+	# y-coordinates or the top-left and bottom-left y-coordinates
+	heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+	heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+	maxHeight = max(int(heightA), int(heightB))
+	# now that we have the dimensions of the new image, construct
+	# the set of destination points to obtain a "birds eye view",
+	# (i.e. top-down view) of the image, again specifying points
+	# in the top-left, top-right, bottom-right, and bottom-left
+	# order
+	dst = np.array([
+		[0, 0],
+		[maxWidth - 1, 0],
+		[maxWidth - 1, maxHeight - 1],
+		[0, maxHeight - 1]], dtype = "float32")
+	# compute the perspective transform matrix and then apply it
+	M = cv2.getPerspectiveTransform(rect, dst)
+	warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+	# return the warped image
+	return warped
+
+def drawCenter(image, center_coordinates):
+    radius = 20
+    #color in BGR
+    color = (255, 0, 0)
+    # Line thickness of -1 px (-1 fills the circle)
+    thickness = -1
+
+    #coordinates correspond to the center of the image
+    center_coordinates = center_coordinates.astype(int)
+    image = cv2.circle(image, center_coordinates, radius, color, thickness)
+    return image
+
+def fetchCellPoints(image, coordinate, totalGrid):
+    cols = sorted(totalGrid[:, 0])
+    cols_left_cp = np.where(cols < coordinate[0])[0]
+    cols_right_cp = np.where(cols > coordinate[0])[0]
+
+    #REFAZER ESTA PARTE
+    
+    absolute_val_array = np.abs(cols_left_cp - coordinate[0])
+    smallest_difference_index = absolute_val_array.argmin()
+    closest_element = cols_left_cp[smallest_difference_index]
+
+    left_top = cellSum.dsearchn(cols_left)
+
+    rows = sorted(totalGrid[:, 1])
+    rows_left_cp = np.where(rows < coordinate[1])[0]
+    rows_right_cp = np.where(rows > coordinate[1])[0]
+    return cimg
 
 def rescaleFrame(frame, scale):
 	width = int(frame.shape[1] * scale)

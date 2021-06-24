@@ -77,7 +77,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     #print(newPointsCorr)
     sumPoints = np.vstack((sumPoints, newPointsCorr))
     #print(D_xy_mean_total)
-    plotabc(intersectionPoints, intersectionPoints1, midFrame, '+b', 'xr', '3g')
+    #plotabc(intersectionPoints, intersectionPoints1, midFrame, '+b', 'xr', '3g')
 
     return sumPoints, oldPoints, newPoints,  D_xy_mean_total, centerPoint
 
