@@ -63,12 +63,15 @@ def main():
             
             intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame, midFrame)
             totalGrid, oldPoints, newPoints, D_xy_mean_total, centerPoint = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total, centerPoint, midFrame)
-            print(centerPoint[-1,:])
+            #print(centerPoint[-1,:])
             #make the mew frame the old for the next iteration of cycle
             intersectionPoints = np.asarray(intersectionPoints1)
-            
+            print(type(totalGrid))
+            print(type(intersectionPoints1))
+
             #cimg = vidProc.findCircles(frame)
-            cimg1 = vidProc.fetchCellPoints(cimg)
+            rect, cel = vidProc.fetchCellPoints(midFrame, intersectionPoints)
+            cimg1 = vidProc.four_point_transform(cimg, rect)
             #cv2.imshow(windowName, cimg)
             vidProc.show_wait_destroy(windowName, cimg1)
             #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
@@ -79,7 +82,7 @@ def main():
             if cv2.waitKey(1) == 27:
                 break
         fps_count += 1
-        print(fps_count)
+        #print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
     cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')

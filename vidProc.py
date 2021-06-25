@@ -5,6 +5,7 @@ import numpy as np
 import math
 from matplotlib import pyplot as plt
 import cellSum
+from operator import itemgetter
 
 
 def undist(img,data_dict):
@@ -152,7 +153,7 @@ def findCircles(img):
     
     return(cimg, i[:2])
 
-def four_point_transform(image, pts):
+def four_point_transform(image, rect):
 	# obtain a consistent order of the points and unpack them
 	# individually
     #first entry in the list is the top-left,
@@ -200,23 +201,42 @@ def drawCenter(image, center_coordinates):
     image = cv2.circle(image, center_coordinates, radius, color, thickness)
     return image
 
-def fetchCellPoints(image, coordinate, totalGrid):
-    cols = sorted(totalGrid[:, 0])
-    cols_left_cp = np.where(cols < coordinate[0])[0]
-    cols_right_cp = np.where(cols > coordinate[0])[0]
-
-    #REFAZER ESTA PARTE
+def fetchCellPoints(coordinate, totalGrid):
+    sorted_by_cols = totalGrid[totalGrid[:, 0].argsort()]
     
-    absolute_val_array = np.abs(cols_left_cp - coordinate[0])
-    smallest_difference_index = absolute_val_array.argmin()
-    closest_element = cols_left_cp[smallest_difference_index]
+    cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0])[0]
+    cols_left_cp = sorted_by_cols[cols_left_cp_i]
+    sorted_by_row_l = cols_left_cp[cols_left_cp[:, 1].argsort()]
+    sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1])[0]
+    rows_left_cp_b = sorted_by_row_l[sorted_by_row_l_i]
 
-    left_top = cellSum.dsearchn(cols_left)
+    left_bottom_corner = [cols_left_cp[-1,0], rows_left_cp_b[-1,1]]
+    left_top_corner = [cols_left_cp[-1,0], sorted_by_row_l[sorted_by_row_l_i[-1]+1,1]]
+    print('left bottom corner coordinates:', left_bottom_corner)
+    print('left top corner coordinates:', left_top_corner)
 
-    rows = sorted(totalGrid[:, 1])
-    rows_left_cp = np.where(rows < coordinate[1])[0]
-    rows_right_cp = np.where(rows > coordinate[1])[0]
-    return cimg
+    cols_right_cp_i = list(range(cols_left_cp_i[-1], len(totalGrid)))
+    cols_right_cp = sorted_by_cols[cols_right_cp_i]
+    sorted_by_row_r = cols_right_cp[cols_right_cp[:, 1].argsort()]
+    sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1])[0]
+    rows_right_cp_b = sorted_by_row_r[sorted_by_row_r_i]
+    
+    right_bottom_corner = [cols_right_cp[1,0], rows_right_cp_b[-1,1]]
+    right_top_corner = [cols_right_cp[1,0], sorted_by_row_r[sorted_by_row_r_i[-1]+1,1]]
+
+    print(sorted_by_cols)
+    
+    print('right bottom corner coordinates:', right_bottom_corner)
+    print('right top corner coordinates:', right_top_corner)
+
+    # Célula em que se encontra o ponto em questão
+    row_n = sorted_by_row_l_i[-1]
+    col_n = cols_left_cp_i[-1]
+    cel = [row_n, col_n]
+
+    rect = np.array([left_top_corner, right_top_corner, right_bottom_corner, left_bottom_corner], dtype=np.float32)
+
+    return rect, cel
 
 def rescaleFrame(frame, scale):
 	width = int(frame.shape[1] * scale)
