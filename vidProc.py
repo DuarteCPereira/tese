@@ -8,13 +8,14 @@ import cellSum
 from operator import itemgetter
 
 
+
 def undist(img,data_dict):
-    cameraMatrix=np.array(data_dict['camera_matrix'])
+    cameraM=np.array(data_dict['camera_M'])
     dist=np.array(data_dict['dist_coeff'])
     h,  w = img.shape[:2]
-    newCameraMatrix, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
+    newCameraM, roi = cv2.getOptimalNewCameraM(cameraM, dist, (w,h), 1, (w,h))
     x, y, w, h = roi
-    dst = cv2.undistort(img, cameraMatrix, dist, None, newCameraMatrix)
+    dst = cv2.undistort(img, cameraM, dist, None, newCameraM)
     dst = dst[y:y+h, x:x+w]
     return dst
 
@@ -124,9 +125,9 @@ def findIntPoints(img1, midFrame):
     return intersectionPoints,img, horizontal, vertical, img_bwa
 
 def findInitPoints(img1, midFrame):
-    intersectionPoints, _, _, _, _ = findIntPoints(img1, midFrame)
+    intersectionPoints, img, _, _, _ = findIntPoints(img1, midFrame)
     totalGrid = intersectionPoints
-    return np.asarray(intersectionPoints), np.asarray(totalGrid)
+    return np.asarray(intersectionPoints), np.asarray(totalGrid), img
 
 def findCircles(img):
     cimg=np.copy(img)
@@ -153,41 +154,52 @@ def findCircles(img):
     
     return(cimg, i[:2])
 
-def four_point_transform(image, rect):
-	# obtain a consistent order of the points and unpack them
-	# individually
+def four_point_transform(image, rect, midFrame):
+    # obtain a consistent order of the points and unpack them
+    # individually
     #first entry in the list is the top-left,
-	# the second entry is the top-right, the third is the
-	# bottom-right, and the fourth is the bottom-left
-	
-	(tl, tr, br, bl) = rect
-	# compute the width of the new image, which will be the
-	# maximum distance between bottom-right and bottom-left
-	# x-coordiates or the top-right and top-left x-coordinates
-	widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
-	widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
-	maxWidth = max(int(widthA), int(widthB))
-	# compute the height of the new image, which will be the
-	# maximum distance between the top-right and bottom-right
-	# y-coordinates or the top-left and bottom-left y-coordinates
-	heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
-	heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
-	maxHeight = max(int(heightA), int(heightB))
-	# now that we have the dimensions of the new image, construct
-	# the set of destination points to obtain a "birds eye view",
-	# (i.e. top-down view) of the image, again specifying points
-	# in the top-left, top-right, bottom-right, and bottom-left
-	# order
-	dst = np.array([
-		[0, 0],
-		[maxWidth - 1, 0],
-		[maxWidth - 1, maxHeight - 1],
-		[0, maxHeight - 1]], dtype = "float32")
-	# compute the perspective transform matrix and then apply it
-	M = cv2.getPerspectiveTransform(rect, dst)
-	warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
-	# return the warped image
-	return warped
+    # the second entry is the top-right, the third is the
+    # bottom-right, and the fourth is the bottom-left
+
+    (tl, tr, br, bl) = rect
+    # compute the width of the new image, which will be the
+    # maximum distance between bottom-right and bottom-left
+    # x-coordiates or the top-right and top-left x-coordinates
+    widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+    widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+    maxWidth = max(int(widthA), int(widthB))
+    # compute the height of the new image, which will be the
+    # maximum distance between the top-right and bottom-right
+    # y-coordinates or the top-left and bottom-left y-coordinates
+    heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+    heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+    maxHeight = max(int(heightA), int(heightB))
+    # now that we have the dimensions of the new image, construct
+    # the set of destination points to obtain a "birds eye view",
+    # (i.e. top-down view) of the image, again specifying points
+    # in the top-left, top-right, bottom-right, and bottom-left
+    # order
+    #
+    dst = np.array([
+        [0, 0],
+        [maxWidth - 1, 0],
+        [maxWidth - 1, maxHeight - 1],
+        [0, maxHeight - 1]], dtype = "float32")
+    # compute the perspective transform Mx and then apply it
+    M = cv2.getPerspectiveTransform(rect, dst)
+    warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+    '''
+    Transformação retirada de 
+    https://stackoverflow.com/questions/57399915/how-do-i-determine-the-locations-of-the-points-after-perspective-transform-in-t
+    '''
+    # Here you can transform your point
+    p = midFrame
+    px = (M[0][0]*p[0] + M[0][1]*p[1] + M[0][2]) / ((M[2][0]*p[0] + M[2][1]*p[1] + M[2][2]))
+    py = (M[1][0]*p[0] + M[1][1]*p[1] + M[1][2]) / ((M[2][0]*p[0] + M[2][1]*p[1] + M[2][2]))
+    p_after = (int(px), int(py))
+    print(p_after)
+    # return the warped image
+    return warped, p_after
 
 def drawCenter(image, center_coordinates):
     radius = 20
@@ -201,42 +213,6 @@ def drawCenter(image, center_coordinates):
     image = cv2.circle(image, center_coordinates, radius, color, thickness)
     return image
 
-def fetchCellPoints(coordinate, totalGrid):
-    sorted_by_cols = totalGrid[totalGrid[:, 0].argsort()]
-    
-    cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0])[0]
-    cols_left_cp = sorted_by_cols[cols_left_cp_i]
-    sorted_by_row_l = cols_left_cp[cols_left_cp[:, 1].argsort()]
-    sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1])[0]
-    rows_left_cp_b = sorted_by_row_l[sorted_by_row_l_i]
-
-    left_bottom_corner = [cols_left_cp[-1,0], rows_left_cp_b[-1,1]]
-    left_top_corner = [cols_left_cp[-1,0], sorted_by_row_l[sorted_by_row_l_i[-1]+1,1]]
-    print('left bottom corner coordinates:', left_bottom_corner)
-    print('left top corner coordinates:', left_top_corner)
-
-    cols_right_cp_i = list(range(cols_left_cp_i[-1], len(totalGrid)))
-    cols_right_cp = sorted_by_cols[cols_right_cp_i]
-    sorted_by_row_r = cols_right_cp[cols_right_cp[:, 1].argsort()]
-    sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1])[0]
-    rows_right_cp_b = sorted_by_row_r[sorted_by_row_r_i]
-    
-    right_bottom_corner = [cols_right_cp[1,0], rows_right_cp_b[-1,1]]
-    right_top_corner = [cols_right_cp[1,0], sorted_by_row_r[sorted_by_row_r_i[-1]+1,1]]
-
-    print(sorted_by_cols)
-    
-    print('right bottom corner coordinates:', right_bottom_corner)
-    print('right top corner coordinates:', right_top_corner)
-
-    # Célula em que se encontra o ponto em questão
-    row_n = sorted_by_row_l_i[-1]
-    col_n = cols_left_cp_i[-1]
-    cel = [row_n, col_n]
-
-    rect = np.array([left_top_corner, right_top_corner, right_bottom_corner, left_bottom_corner], dtype=np.float32)
-
-    return rect, cel
 
 def rescaleFrame(frame, scale):
 	width = int(frame.shape[1] * scale)

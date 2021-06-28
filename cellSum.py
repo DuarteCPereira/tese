@@ -78,8 +78,63 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     sumPoints = np.vstack((sumPoints, newPointsCorr))
     #print(D_xy_mean_total)
     #plotabc(intersectionPoints, intersectionPoints1, midFrame, '+b', 'xr', '3g')
+    _, cel = fetchCellPoints(centerPoint[-1], sumPoints)
+    rect, _ = fetchCellPoints(midFrame, np.asarray(intersectionPoints1))
 
-    return sumPoints, oldPoints, newPoints,  D_xy_mean_total, centerPoint
+
+    return sumPoints, oldPoints, newPoints,  D_xy_mean_total, centerPoint, cel, rect
+
+def fetchCellPoints(coordinate, totalGrid):
+    sorted_by_cols = totalGrid[totalGrid[:, 0].argsort()]
+    sorted_by_rows = totalGrid[totalGrid[:, 1].argsort()]
+    
+    cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0])[0]
+    cols_left_cp = sorted_by_cols[cols_left_cp_i]
+    sorted_by_row_l = cols_left_cp[cols_left_cp[:, 1].argsort()]
+    sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1])[0]
+    rows_left_cp_b = sorted_by_row_l[sorted_by_row_l_i]
+
+    left_bottom_corner = [cols_left_cp[-1,0], rows_left_cp_b[-1,1]]
+    left_top_corner = [cols_left_cp[-1,0], sorted_by_row_l[sorted_by_row_l_i[-1]+1,1]]
+    print('left bottom corner coordinates:', left_bottom_corner)
+    print('left top corner coordinates:', left_top_corner)
+
+    cols_right_cp_i = list(range(cols_left_cp_i[-1], len(totalGrid)))
+    cols_right_cp = sorted_by_cols[cols_right_cp_i]
+    sorted_by_row_r = cols_right_cp[cols_right_cp[:, 1].argsort()]
+    sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1])[0]
+    rows_right_cp_b = sorted_by_row_r[sorted_by_row_r_i]
+    
+    right_bottom_corner = [cols_right_cp[1,0], rows_right_cp_b[-1,1]]
+    right_top_corner = [cols_right_cp[1,0], sorted_by_row_r[sorted_by_row_r_i[-1]+1,1]]
+    
+    print('right bottom corner coordinates:', right_bottom_corner)
+    print('right top corner coordinates:', right_top_corner)
+    
+
+    #Ajustar este parametro "d_min"
+    d_min = 70
+    cel_col = 0
+    # Célula em que se encontra o ponto em questão
+    for i in range(0,len(sorted_by_cols)-1):
+        d = sorted_by_cols[i+1,0] - sorted_by_cols[i,0]
+        if d > d_min:
+            cel_col += 1
+        if sorted_by_cols[i+1,0] > coordinate[0]:
+            break
+    
+    cel_row = 0
+    for j in range(0,len(sorted_by_rows)-1):
+        d = sorted_by_rows[j+1,1] - sorted_by_rows[j,1]
+        if d > d_min:
+            cel_row += 1
+        if sorted_by_rows[j+1,1] > coordinate[1]:
+            break
+
+    cel = [cel_row, cel_col]
+    rect = np.array([left_top_corner, right_top_corner, right_bottom_corner, left_bottom_corner], dtype=np.float32)
+
+    return rect, cel
 
 def plotIntPoints(totalGrid, marker):
    

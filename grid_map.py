@@ -1,6 +1,7 @@
 import numpy as np
 import cellSum
 from matplotlib import pyplot as plt
+import math
 
 
 def nRowsCols(tg, d_min):
@@ -45,8 +46,12 @@ def createMesh(n_rows, n_cols, side_len):
 
     plt.show()
 
-
-
+def dist_calc(p_init, p, cel_init, cel, cel_side):
+    dist_cels = cel - cel_init
+    dist_inside_cel = p - p_init
+    #mudar este 180 mais tarde
+    d = dist_cels*cel_side + dist_inside_cel*(cel_side/180)
+    return d
 
 if __name__ == '__main__':
     frames = {
