@@ -180,6 +180,8 @@ def four_point_transform(image, rect, midFrame):
     # in the top-left, top-right, bottom-right, and bottom-left
     # order
     #
+    maxHeight = 180
+    maxWidth = 180
     dst = np.array([
         [0, 0],
         [maxWidth - 1, 0],
@@ -196,8 +198,7 @@ def four_point_transform(image, rect, midFrame):
     p = midFrame
     px = (M[0][0]*p[0] + M[0][1]*p[1] + M[0][2]) / ((M[2][0]*p[0] + M[2][1]*p[1] + M[2][2]))
     py = (M[1][0]*p[0] + M[1][1]*p[1] + M[1][2]) / ((M[2][0]*p[0] + M[2][1]*p[1] + M[2][2]))
-    p_after = (int(px), int(py))
-    print(p_after)
+    p_after = (int(px), 180-int(py))
     # return the warped image
     return warped, p_after
 

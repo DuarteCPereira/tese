@@ -63,7 +63,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
         w, _ = dsearchn(sumPoints, IP1_olds[q] + D_xy_mean_total)
         d_corr = IP1_olds[q] - intersectionPoints1[j]
         d_corr1 = sumPoints[w] - intersectionPoints[k]
-        print('totalGridPoint ->',sumPoints[w], 'IP_old ->', intersectionPoints[k], 'IP1_old ->', IP1_olds[q], 'IP1_new ->', intersectionPoints1[j])
+        #print('totalGridPoint ->',sumPoints[w], 'IP_old ->', intersectionPoints[k], 'IP1_old ->', IP1_olds[q], 'IP1_new ->', intersectionPoints1[j])
         newPoints = np.vstack((newPoints, intersectionPoints1[j]))
         a = sumPoints[w] - d_corr
         newPointsCorr = np.vstack((newPointsCorr, a))
@@ -96,8 +96,9 @@ def fetchCellPoints(coordinate, totalGrid):
 
     left_bottom_corner = [cols_left_cp[-1,0], rows_left_cp_b[-1,1]]
     left_top_corner = [cols_left_cp[-1,0], sorted_by_row_l[sorted_by_row_l_i[-1]+1,1]]
-    print('left bottom corner coordinates:', left_bottom_corner)
-    print('left top corner coordinates:', left_top_corner)
+    
+    #print('left bottom corner coordinates:', left_bottom_corner)
+    #print('left top corner coordinates:', left_top_corner)
 
     cols_right_cp_i = list(range(cols_left_cp_i[-1], len(totalGrid)))
     cols_right_cp = sorted_by_cols[cols_right_cp_i]
@@ -108,8 +109,8 @@ def fetchCellPoints(coordinate, totalGrid):
     right_bottom_corner = [cols_right_cp[1,0], rows_right_cp_b[-1,1]]
     right_top_corner = [cols_right_cp[1,0], sorted_by_row_r[sorted_by_row_r_i[-1]+1,1]]
     
-    print('right bottom corner coordinates:', right_bottom_corner)
-    print('right top corner coordinates:', right_top_corner)
+    #print('right bottom corner coordinates:', right_bottom_corner)
+    #print('right top corner coordinates:', right_top_corner)
     
 
     #Ajustar este parametro "d_min"
@@ -152,6 +153,18 @@ def plotab(a, b, marker_a, marker_b):
     #plt.grid(True, linewidth=0.3, color='#808080', linestyle='-')
     ax.plot(a[:, 0], a[:, 1], marker_a)
     ax.plot(b[:, 0], b[:, 1], marker_b)
+    #for i in range(1, len(b)):
+        #ax.quiver(b[i, 0], b[i, 1], b[i, 0]-b[i-1, 0], b[i, 1]-b[i-1, 1], color = marker_b, scale=100, scale_units='inches', width = 0.003)
+
+    plt.show()
+
+def plot_a_b(a, b, marker_a, marker_b):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    #plt.grid(True, linewidth=0.3, color='#808080', linestyle='-')
+    ax.plot(a[:, 0], a[:, 1], marker_a)
+    ax.plot(b[0], b[1], marker_b)
     #for i in range(1, len(b)):
         #ax.quiver(b[i, 0], b[i, 1], b[i, 0]-b[i-1, 0], b[i, 1]-b[i-1, 1], color = marker_b, scale=100, scale_units='inches', width = 0.003)
 

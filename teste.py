@@ -60,28 +60,25 @@ def main():
                 rect_init, cel_init = cellSum.fetchCellPoints(midFrame, intersectionPoints)
                 cimg, cel_cord_init = vidProc.four_point_transform(img, rect_init, midFrame)
                 vidProc.show_wait_destroy('teste', cimg)
+                cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             
-
-            #cimg = calibrateFisheye.undist(frame,Kd,Dd)
             #lines,cimg=vidProc.binaryGridDetection(frame)
             #vidProc.show_wait_destroy('posição do centro na celula',cimg)
             intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame, midFrame)
             totalGrid, oldPoints, newPoints, D_xy_mean_total, centerPoint, cel, rect = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total, centerPoint, midFrame)
-            #print(centerPoint[-1,:])
+
+
             #make the mew frame the old for the next iteration of cycle
             intersectionPoints = np.asarray(intersectionPoints1)
 
             #cimg = vidProc.findCircles(frame)
-            rect, cel = cellSum.fetchCellPoints(midFrame, intersectionPoints)
-            cimg1, p_after = vidProc.four_point_transform(cimg, rect, midFrame)
-            cv2.imshow(windowName, cimg)
-            #vidProc.show_wait_destroy(windowName, cimg1)
-            #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
-            #cv2.imshow("frame", cimg)
-            #cv2.imshow("horizontal", horizontal)
-            #cv2.imshow("vertical", vertical)
-            #cv2.imshow("img_bwa", img_bwa)
             
+            #cv2.imshow(windowName, cimg)
+            #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
+            
+            if fps_count == last_frame:
+                vidProc.show_wait_destroy("last Frame", cimg)
+                cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             if cv2.waitKey(1) == 27:
                 break
         fps_count += 1
@@ -89,11 +86,18 @@ def main():
     cv2.destroyAllWindows()
     cap.release()
     cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
-    n_rows, n_cols = grid_map.nRowsCols(totalGrid, 70)
-    grid_map.createMesh(n_rows, n_cols, 20)
-    _, cel = cellSum.fetchCellPoints(centerPoint[-1], totalGrid)
-    d = grid_map.dist_calc(np.asarray(p_after), np.asarray(cel_cord_init), np.asarray(cel_init), np.asarray(cel), 20)
-    print(d)
+    n_rows_tg, n_cols_tg = grid_map.nRowsCols(totalGrid, 70)
+    
+    #MUDAR CENTERPOINT PARA PONTO REAL E NAO APROXIMAÇÃO
+    rect, cel = cellSum.fetchCellPoints(midFrame, intersectionPoints)
+    cimg1, p_after = vidProc.four_point_transform(cimg, rect, midFrame)
+    vidProc.show_wait_destroy("last frame cell", cimg1)
+    
+    end_cel = grid_map.global_cel_location(midFrame, intersectionPoints, totalGrid, n_rows_tg, n_cols_tg, D_xy_mean_total, 70)
+    
+    grid_map.createMesh(n_rows_tg, n_cols_tg, 20,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(cel_init), np.asarray(end_cel))
+    d = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(cel_init), np.asarray(end_cel), 20)
+    print('A distância percorrida foi de', d[0],'[mm] em xx, e', d[1], '[mm] em yy')
 
     
 main()
