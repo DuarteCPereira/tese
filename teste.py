@@ -27,10 +27,10 @@ def main():
     
     windowName = "Preview"
     #cv2.namedWindow(windowName)
-    cap = cv2.VideoCapture('video_grid_new_cam.h264')
+    cap = cv2.VideoCapture('10mm_100mm_min_yy.h264')
     fps_count = 1
-    inital_frame = 100
-    last_frame = 400
+    inital_frame = 5
+    last_frame = 296
     #cap.set(3, 1024)
     #cap.set(4, 576)
     
@@ -47,7 +47,7 @@ def main():
         ret, frame = cap.read()
 
         #Make the code only start getting points after intial_frame
-        if fps_count >= inital_frame and fps_count <= last_frame and fps_count % 5 == 0:
+        if fps_count >= inital_frame and fps_count <= last_frame and fps_count % 1 == 0:
 
             #find points of the first frame
             if fps_count == inital_frame:
@@ -61,6 +61,7 @@ def main():
                 rect_init, cel_init = cellSum.fetchCellPoints(midFrame, intersectionPoints, 10)
                 cimg, cel_cord_init = vidProc.four_point_transform(img, rect_init, midFrame)
                 vidProc.show_wait_destroy('teste', cimg)
+                vidProc.show_wait_destroy('teste', img)
                 cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             
             #lines,cimg=vidProc.binaryGridDetection(frame)
@@ -74,6 +75,7 @@ def main():
 
             #cimg = vidProc.findCircles(frame)
             
+            vidProc.show_wait_destroy("frame", cimg)
             #cv2.imshow(windowName, cimg)
             #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
             
@@ -83,7 +85,7 @@ def main():
             if cv2.waitKey(1) == 27:
                 break
         fps_count += 1
-        #print(fps_count)
+        print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
     cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
@@ -96,8 +98,8 @@ def main():
     
     start_cel, end_cel = grid_map.global_cel_location(midFrame, intersectionPoints, n_rows_i, n_cols_i, totalGrid, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, 70, 10)
     
-    grid_map.createMesh(n_rows_tg, n_cols_tg, 20,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel))
-    d = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), 20)
+    grid_map.createMesh(n_rows_tg, n_cols_tg, 2,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel))
+    d = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), 2)
     print('A distância percorrida foi de', d[0],'[mm] em xx, e', d[1], '[mm] em yy')
 
 main()
