@@ -27,7 +27,7 @@ def main():
     
     windowName = "Preview"
     #cv2.namedWindow(windowName)
-    cap = cv2.VideoCapture('video_grid_new_cam1.h264')
+    cap = cv2.VideoCapture('video_grid_new_cam.h264')
     fps_count = 1
     inital_frame = 100
     last_frame = 400
@@ -56,8 +56,9 @@ def main():
                 centerPoint = np.vstack((centerPoint, midFrame))
                 print(centerPoint[-1,:])
                 intersectionPoints, totalGrid, img = vidProc.findInitPoints(frame, midFrame)
+                n_rows_i, n_cols_i = grid_map.nRowsCols(intersectionPoints, 70)
                 D_xy_mean_total = [0, 0]
-                rect_init, cel_init = cellSum.fetchCellPoints(midFrame, intersectionPoints)
+                rect_init, cel_init = cellSum.fetchCellPoints(midFrame, intersectionPoints, 10)
                 cimg, cel_cord_init = vidProc.four_point_transform(img, rect_init, midFrame)
                 vidProc.show_wait_destroy('teste', cimg)
                 cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
@@ -65,7 +66,7 @@ def main():
             #lines,cimg=vidProc.binaryGridDetection(frame)
             #vidProc.show_wait_destroy('posição do centro na celula',cimg)
             intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame, midFrame)
-            totalGrid, oldPoints, newPoints, D_xy_mean_total, centerPoint, cel, rect = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total, centerPoint, midFrame)
+            totalGrid, oldPoints, newPoints, D_xy_mean_total, centerPoint = cellSum.continuousGrid(intersectionPoints, np.asarray(intersectionPoints1), totalGrid,totalGrid, intersectionPoints,np.asarray(intersectionPoints1),0,0,D_xy_mean_total, centerPoint, midFrame)
 
 
             #make the mew frame the old for the next iteration of cycle
@@ -89,15 +90,14 @@ def main():
     n_rows_tg, n_cols_tg = grid_map.nRowsCols(totalGrid, 70)
     
     #MUDAR CENTERPOINT PARA PONTO REAL E NAO APROXIMAÇÃO
-    rect, cel = cellSum.fetchCellPoints(midFrame, intersectionPoints)
+    rect, _ = cellSum.fetchCellPoints(midFrame, intersectionPoints, 10)
     cimg1, p_after = vidProc.four_point_transform(cimg, rect, midFrame)
     vidProc.show_wait_destroy("last frame cell", cimg1)
     
-    end_cel = grid_map.global_cel_location(midFrame, intersectionPoints, totalGrid, n_rows_tg, n_cols_tg, D_xy_mean_total, 70)
+    start_cel, end_cel = grid_map.global_cel_location(midFrame, intersectionPoints, n_rows_i, n_cols_i, totalGrid, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, 70, 10)
     
-    grid_map.createMesh(n_rows_tg, n_cols_tg, 20,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(cel_init), np.asarray(end_cel))
-    d = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(cel_init), np.asarray(end_cel), 20)
+    grid_map.createMesh(n_rows_tg, n_cols_tg, 20,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel))
+    d = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), 20)
     print('A distância percorrida foi de', d[0],'[mm] em xx, e', d[1], '[mm] em yy')
 
-    
 main()

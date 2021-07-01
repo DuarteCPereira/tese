@@ -14,7 +14,7 @@ def nRowsCols(tg, d_min):
             n_cols += 1
             Dx += d
     Dx_mean = Dx / n_cols
-    #print('o número de colunas é', n_cols, 'com um espaçamento médio de', Dx_mean, '!')
+    print('o número de colunas é', n_cols, 'com um espaçamento médio de', Dx_mean, '!')
 
     rows = sorted(tg[:, 1])
     n_rows = 0
@@ -25,7 +25,7 @@ def nRowsCols(tg, d_min):
             n_rows += 1
             Dy += d
     Dy_mean = Dy / n_rows
-    #print('o número de linhas é', n_rows, 'com um espaçamento médio de', Dy_mean, '!')
+    print('o número de linhas é', n_rows, 'com um espaçamento médio de', Dy_mean, '!')
     return n_rows, n_cols
 
 
@@ -50,9 +50,9 @@ def createMesh(n_rows, n_cols, side_len, p_init, p_end, cel_init, end_cel):
 
     #plot do ponto final
     d = [((end_cel[1]-1)*side_len)+(p_end[0] /180)*(side_len), ((end_cel[0]-1)*side_len)+(p_end[1] /180)*(side_len)]
-    ax.plot(d[0], d[1], marker='+', color='r')
+    ax.plot(d[0], d[1], marker='*', color='g')
 
-    ax.arrow(c[0], c[1], d[0] - c[0] - 10, d[1] - c[1] - 10, head_width=5, head_length=10, fc='r', ec='g')
+    ax.arrow(c[0], c[1], d[0] - c[0], d[1] - c[1], head_width=5, head_length=10, fc='r', ec='r')
 
     plt.show()
     return None
@@ -61,11 +61,11 @@ def dist_calc(p_init, p, cel_init, cel, cel_side):
     dist_cels = cel - cel_init
     dist_inside_cel = p - p_init
     #mudar este 180 mais tarde
-    d = dist_cels*cel_side + dist_inside_cel*(cel_side/180)
+    d = np.flip(dist_cels*cel_side) + dist_inside_cel*(cel_side/180)
     return d
 
-def global_cel_location(coordinate, IP1, tg, n_rows_tg, n_cols_tg, D_xy_mean_total, d_min):
-    _, cel = cellSum.fetchCellPoints(coordinate, IP1)
+def global_cel_location(coordinate, IP1, n_rows_i, n_cols_i, tg, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, d_min, tolerance):
+    _, cel = cellSum.fetchCellPoints(coordinate, IP1, tolerance)
     #check where the boundaries are located (left(-1) or right(1), down(-1) or up(1))
     if D_xy_mean_total[0] > 0:
         horizontal_bound = 1
@@ -79,10 +79,28 @@ def global_cel_location(coordinate, IP1, tg, n_rows_tg, n_cols_tg, D_xy_mean_tot
     #check the distance (counted in cells) of the cel where the point is located to the boundaries
     #first know the number of cols and rows that IP1 has
     n_rows, n_cols = nRowsCols(IP1, d_min)
-    d_cells = [n_rows-vertical_bound*cel[0], n_cols-horizontal_bound*cel[1]]
+    if vertical_bound == 1:
+        d_cells1 = n_rows - cel[0]
+        cel_in_tg1 = n_rows_tg - d_cells1
+        cel_init1 = cel_init[0]
+    elif vertical_bound == -1:
+        d_cells1 = cel[0]
+        cel_in_tg1 = d_cells1
+        cel_init1 = n_rows_tg - (n_rows_i - cel_init[0])
 
-    cel_in_tg = [n_rows_tg - d_cells[0], n_cols_tg - d_cells[1]]
-    return cel_in_tg
+    if horizontal_bound == 1:
+        d_cells2 = n_cols - cel[1]
+        cel_in_tg2 = n_cols_tg - d_cells2
+        cel_init2 = cel_init[1]
+    elif horizontal_bound == -1:
+        d_cells2 = cel[1]
+        cel_in_tg2 = d_cells2
+        cel_init2 = n_cols_tg - (n_cols_i - cel_init[1])
+
+
+    cel_in_tg = [cel_in_tg1, cel_in_tg2]
+    start_cel = [cel_init1, cel_init2]
+    return start_cel, cel_in_tg
 
     
 
