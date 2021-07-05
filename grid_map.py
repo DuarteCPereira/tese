@@ -52,7 +52,7 @@ def createMesh(n_rows, n_cols, side_len, p_init, p_end, cel_init, end_cel):
     d = [((end_cel[1]-1)*side_len)+(p_end[0] /180)*(side_len), ((end_cel[0]-1)*side_len)+(p_end[1] /180)*(side_len)]
     ax.plot(d[0], d[1], marker='*', color='g')
 
-    ax.arrow(c[0], c[1], d[0] - c[0], d[1] - c[1], head_width=5, head_length=10, fc='r', ec='r')
+    ax.arrow(c[0], c[1], d[0] - c[0], d[1] - c[1], head_width=0.2, head_length=0.2, fc='r', ec='r')
 
     plt.show()
     return None
@@ -62,7 +62,8 @@ def dist_calc(p_init, p, cel_init, cel, cel_side):
     dist_inside_cel = p - p_init
     #mudar este 180 mais tarde
     d = np.flip(dist_cels*cel_side) + dist_inside_cel*(cel_side/180)
-    return d
+    d_total = math.sqrt((d[0]**2) + (d[1]**2))
+    return d, d_total
 
 def global_cel_location(coordinate, IP1, n_rows_i, n_cols_i, tg, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, d_min, tolerance):
     _, cel = cellSum.fetchCellPoints(coordinate, IP1, tolerance)

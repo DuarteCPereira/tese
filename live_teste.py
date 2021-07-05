@@ -26,10 +26,12 @@ def main():
     
     windowName = "Preview"
     #cv2.namedWindow(windowName)
-    cap = cv2.VideoCapture('10mm_100mm_min_yy.h264')
+    cap = cv2.VideoCapture('10mm_100mm_min_yy.mp4')
+    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    last_frame = length
     fps_count = 1
     inital_frame = 100
-    last_frame = 400
+    #last_frame = 400
     #cap.set(3, 1024)
     #cap.set(4, 576)
     
@@ -44,13 +46,22 @@ def main():
     while ret:
     
         ret, frame = cap.read()
-
         #Make the code only start getting points after intial_frame
-        if fps_count % 1 == 0:
+        if fps_count >=4 and fps_count < last_frame and fps_count % 1 == 0:
             centerPoint = np.array([]).reshape(0, 2)
             midFrame = np.flip(np.asarray(frame.shape[:2])/2)
             intersectionPoints1, cimg, horizontal, vertical, img_bwa = vidProc.findIntPoints(frame, midFrame)
-            vidProc.show_wait_destroy(windowName, cimg)
+            print('IP!', len(intersectionPoints1))
+            if fps_count == 4:
+                intersectionPoints = intersectionPoints1
+
+            if fps_count >=5:
+                if len(intersectionPoints1) < len(intersectionPoints)-5:
+                    print('frame bugado')
+                else:
+                    intersectionPoints = intersectionPoints1        
+                
+            cv2.imshow(windowName, cimg)
             
             if cv2.waitKey(1) == 27:
                 break
