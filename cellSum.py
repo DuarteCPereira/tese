@@ -85,10 +85,12 @@ def fetchCellPoints(coordinate, totalGrid, tolerance):
     sorted_by_cols = totalGrid[totalGrid[:, 0].argsort()]
     sorted_by_rows = totalGrid[totalGrid[:, 1].argsort()]
     
-    cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0]+tolerance)[0]
+    #cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0]+tolerance)[0]
+    cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0])[0]
     cols_left_cp = sorted_by_cols[cols_left_cp_i]
     sorted_by_row_l = cols_left_cp[cols_left_cp[:, 1].argsort()]
-    sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1]+tolerance)[0]
+    #sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1]+tolerance)[0]
+    sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1])[0]
     rows_left_cp_b = sorted_by_row_l[sorted_by_row_l_i]
 
     left_bottom_corner = [cols_left_cp[-1,0], rows_left_cp_b[-1,1]]
@@ -100,7 +102,8 @@ def fetchCellPoints(coordinate, totalGrid, tolerance):
     cols_right_cp_i = list(range(cols_left_cp_i[-1], len(totalGrid)))
     cols_right_cp = sorted_by_cols[cols_right_cp_i]
     sorted_by_row_r = cols_right_cp[cols_right_cp[:, 1].argsort()]
-    sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1]+tolerance)[0]
+    #sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1]+tolerance)[0]
+    sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1])[0]
     rows_right_cp_b = sorted_by_row_r[sorted_by_row_r_i]
     
     right_bottom_corner = [cols_right_cp[1,0], rows_right_cp_b[-1,1]]
@@ -108,7 +111,13 @@ def fetchCellPoints(coordinate, totalGrid, tolerance):
     
     print('right bottom corner coordinates:', right_bottom_corner)
     print('right top corner coordinates:', right_top_corner)
+
+    area = (right_bottom_corner[0] - left_bottom_corner[0])*(left_top_corner[1] - left_bottom_corner[1])
+    if area < 40000:
+        print('Erro na deteção da célula!')
     
+    #Criar ponto ficticio que simula +- o centro da célula com base nos cantos encontrados
+    cord = [(right_bottom_corner[0] + left_bottom_corner[0]) / 2, (left_top_corner[1] + left_bottom_corner[1]) / 2]
 
     #Ajustar este parametro "d_min"
     d_min = 70
@@ -118,7 +127,7 @@ def fetchCellPoints(coordinate, totalGrid, tolerance):
         d = sorted_by_cols[i+1,0] - sorted_by_cols[i,0]
         if d > d_min:
             cel_col += 1
-        if sorted_by_cols[i+1,0] - tolerance > coordinate[0]:
+        if sorted_by_cols[i+1,0] - tolerance > cord[0]:
             break
     
     cel_row = 0
@@ -126,7 +135,7 @@ def fetchCellPoints(coordinate, totalGrid, tolerance):
         d = sorted_by_rows[j+1,1] - sorted_by_rows[j,1]
         if d > d_min:
             cel_row += 1
-        if sorted_by_rows[j+1,1] - tolerance > coordinate[1]:
+        if sorted_by_rows[j+1,1] - tolerance > cord[1]:
             break
 
     cel = [cel_row, cel_col]

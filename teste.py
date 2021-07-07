@@ -29,8 +29,8 @@ def main():
     #cv2.namedWindow(windowName)
     cap = cv2.VideoCapture('10mm_100mm_min_xx.mp4')
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    #last_frame = length
-    last_frame = 295
+    last_frame = length
+    #last_frame = 295
     fps_count = 1
     inital_frame = 5
     #cap.set(3, 1024)
