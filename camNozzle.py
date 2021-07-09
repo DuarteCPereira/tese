@@ -1,7 +1,9 @@
 import numpy as np
 import vidProc
-import videoRecord
 import cellSum
+import grid_map
+import cv2
+
 
 
 def printCalibrationShape():
@@ -102,7 +104,7 @@ def movePrintCore(displacement_vector):
     return d, d_total
 
 
-def nozzleCamDist(frame, intersectionPoints, p, cel, cel_side):
+def nozzleCenterDist(frame, intersectionPoints, p, cel, cel_side):
     #Entra o frame final e encontra-se a coordenada do centro da forma de calibração
     vidProc.findCircles(frame)
     #Obter a célula e as coordenadas onde se encontra o nozzle
@@ -116,4 +118,32 @@ def nozzleCamDist(frame, intersectionPoints, p, cel, cel_side):
     vec = np.flip(vec_cels*cel_side) + vec_inside_cel*(cel_side/180)
 
     return vec
+
+def nozzleCamDist(vec, d):
+    vec_nozzle_cam = d + vec
+    return vec_nozzle_cam
+
+def steps_mm_cal(A, direction):
+    #beforing calling this function, M503 and M83 must be sent to printer
+    d_total = 9.9
+    instruction = 10*direction 
+    while True:
+        #d, d_total = movePrintCore(instruction)
+        dif = d_total - 10
+        if abs(dif) < 0.05:
+            D = A
+            break
+        elif dif > 0:
+            D = 10*A/d_total
+        elif dif < 0:
+            D = d_total*A/10
+        A = D
+
+        #new parameter D must be sent with GCode M92 and saved with M500
+    return D
+
+D = steps_mm_cal(5, [1, 0])
+
+
+
 
