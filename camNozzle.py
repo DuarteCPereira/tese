@@ -2,6 +2,7 @@ import numpy as np
 import vidProc
 import cellSum
 import grid_map
+import math
 import cv2
 
 
@@ -142,7 +143,17 @@ def steps_mm_cal(A, direction):
         #new parameter D must be sent with GCode M92 and saved with M500
     return D
 
-D = steps_mm_cal(5, [1, 0])
+def getSkewCoefxy():
+    #move the printCore (-10, 0) for example
+    dx, dx_total = movePrintCore([-10, 0])
+    #move the printCore (0, -10) for example
+    dy, dy_total = movePrintCore([0, -10])
+    dot_product = np.dot(dy, dx)
+    angle = np.arccos(dot_product)
+    xytan = math.tan((math.pi/2)-angle)
+    return xytan
+
+
 
 
 
