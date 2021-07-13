@@ -40,7 +40,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 
     for i in range(0, rowsCols1[0]):
         k, dist = dsearchn(intersectionPoints, intersectionPoints1[i, :])
-        if dist < 150:
+        if dist < 70:
             K = np.vstack((K, k))
             indOld = np.vstack((indOld, i))
             d_xy = intersectionPoints[k][:] - intersectionPoints1[i][:]
@@ -72,12 +72,13 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
     cIP1, _ = dsearchn(intersectionPoints1, midFrame)
     cIP, _ = dsearchn(intersectionPoints, intersectionPoints1[cIP1])
     d = intersectionPoints[cIP] - intersectionPoints1[cIP1]
-    centerPointCorr = centerPoint[-1, :] + d
-    centerPoint = np.vstack((centerPoint, centerPointCorr))
+    if (math.sqrt((d[0]**2) + (d[1]**2))) < (math.sqrt((D_xy_mean[0]**2) + (D_xy_mean[1]**2)))*3:
+        centerPointCorr = centerPoint[-1, :] + d
+        centerPoint = np.vstack((centerPoint, centerPointCorr))
     #print(newPointsCorr)
     sumPoints = np.vstack((sumPoints, newPointsCorr))
     #print(D_xy_mean_total)
-    #plotabc(intersectionPoints, intersectionPoints1, midFrame, '+b', 'xr', '3g')
+    #plot_a_b_c(intersectionPoints, intersectionPoints1, newPoints, '+b', 'xr', '3g')
 
     return sumPoints, oldPoints, newPoints,  D_xy_mean_total, centerPoint
 
@@ -182,6 +183,14 @@ def plotabc(a, b, c, marker_a, marker_b, marker_c):
     ax.plot(a[:, 0], a[:, 1], marker_a)
     ax.plot(b[:, 0], b[:, 1], marker_b)
     ax.plot(c[0], c[1], marker_c)
+    plt.show()
+
+def plot_a_b_c(a, b, c, marker_a, marker_b, marker_c):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(a[:, 0], a[:, 1], marker_a)
+    ax.plot(b[:, 0], b[:, 1], marker_b)
+    ax.plot(c[:, 0], c[:, 1], marker_c)
     plt.show()
 
 if __name__ == '__main__':

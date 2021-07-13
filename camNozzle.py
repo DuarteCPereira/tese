@@ -2,6 +2,7 @@ import numpy as np
 import vidProc
 import cellSum
 import grid_map
+import videoRecord
 import math
 import cv2
 
@@ -14,15 +15,15 @@ def printCalibrationShape():
     
     return None
 
-def movePrintCore(displacement_vector):
+def movePrintCore(time, name):
     #Dar instrução do movimento e Gravar o video correspondente ao movimento
     
     #Gravar video
-    videoRecord.recordVid(time, name)
+    #videoRecord.recordVid(time, name)
 
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    last_frame = length
+    last_frame = length-3
     #last_frame = 295
     fps_count = 1
     inital_frame = 5
@@ -37,6 +38,7 @@ def movePrintCore(displacement_vector):
     while ret:
     
         ret, frame = cap.read()
+        
 
         #Make the code only start getting points after intial_frame
         if fps_count >= inital_frame and fps_count < last_frame and fps_count % 1 == 0:
@@ -69,9 +71,9 @@ def movePrintCore(displacement_vector):
                 intersectionPoints = np.asarray(intersectionPoints1)
 
             #cimg = vidProc.findCircles(frame)
-            
+
             #vidProc.show_wait_destroy("frame", cimg)
-            cv2.imshow(windowName, cimg)
+            cv2.imshow('preview', cimg)
             #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
             
             if fps_count == last_frame:
@@ -79,6 +81,7 @@ def movePrintCore(displacement_vector):
                 cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             if cv2.waitKey(1) == 27:
                 break
+            print(fps_count)
         fps_count += 1
         #print(fps_count)
     cv2.destroyAllWindows()
@@ -151,10 +154,6 @@ def getSkewCoefxy():
     dot_product = np.dot(dy, dx)
     angle = np.arccos(dot_product)
     xytan = math.tan((math.pi/2)-angle)
-    return xytan
+    return xytan    
 
-
-
-
-
-
+movePrintCore(10, 'teste_moveprintcore1.mp4')
