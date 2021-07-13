@@ -12,7 +12,7 @@ def dsearchn(nodes, node):
 
 
 def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPointsc, centroidPoints, centroidPoints1,
-                   gridRotation, gridRotation1, D_xy_mean_total, centerPoint, midFrame):
+                   gridRotation, gridRotation1, D_xy_mean_total, centerPoint, midFrame, d_min):
     gridRotation1 = -gridRotation1
     gridRotation = -gridRotation
     rotMtx1 = [[math.cos(gridRotation1), -math.sin(gridRotation1)], [math.sin(gridRotation1), math.cos(gridRotation1)]]
@@ -40,7 +40,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 
     for i in range(0, rowsCols1[0]):
         k, dist = dsearchn(intersectionPoints, intersectionPoints1[i, :])
-        if dist < 70:
+        if dist < d_min:
             K = np.vstack((K, k))
             indOld = np.vstack((indOld, i))
             d_xy = intersectionPoints[k][:] - intersectionPoints1[i][:]
@@ -82,7 +82,7 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 
     return sumPoints, oldPoints, newPoints,  D_xy_mean_total, centerPoint
 
-def fetchCellPoints(coordinate, totalGrid, tolerance):
+def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     sorted_by_cols = totalGrid[totalGrid[:, 0].argsort()]
     sorted_by_rows = totalGrid[totalGrid[:, 1].argsort()]
     
@@ -121,7 +121,6 @@ def fetchCellPoints(coordinate, totalGrid, tolerance):
     cord = [(right_bottom_corner[0] + left_bottom_corner[0]) / 2, (left_top_corner[1] + left_bottom_corner[1]) / 2]
 
     #Ajustar este parametro "d_min"
-    d_min = 70
     cel_col = 0
     # Célula em que se encontra o ponto em questão
     for i in range(0,len(sorted_by_cols)-1):

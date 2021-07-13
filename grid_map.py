@@ -66,7 +66,7 @@ def dist_calc(p_init, p, cel_init, cel, cel_side):
     return d, d_total
 
 def global_cel_location(coordinate, IP1, n_rows_i, n_cols_i, tg, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, d_min, tolerance):
-    _, cel = cellSum.fetchCellPoints(coordinate, IP1, tolerance)
+    _, cel = cellSum.fetchCellPoints(coordinate, IP1, tolerance, d_min)
     #check where the boundaries are located (left(-1) or right(1), down(-1) or up(1))
     if D_xy_mean_total[0] > 0:
         horizontal_bound = 1

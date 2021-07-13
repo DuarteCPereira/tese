@@ -105,11 +105,11 @@ def findIntPoints(img1, midFrame):
     # find contours in the binary image
     contours, hierarchy = cv2.findContours(img_bwa, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     intersectionPoints=[]
-    border = [int(cols*0.05), int(cols*0.05)]
+    border = [int(cols*0.05), int(rows*0.05)]
     cv2.rectangle(img, (border[0], border[1]), (cols-border[0], rows-border[1]), (0, 255, 20), 2)
     drawCenter(img, midFrame)
     for c in contours:
-        if cv2.contourArea(c)>80:
+        if cv2.contourArea(c)>cols*0.035:
             # calculate moments for each contour
             M = cv2.moments(c)
             if M["m00"] != 0:
