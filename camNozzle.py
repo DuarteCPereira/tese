@@ -19,7 +19,7 @@ def movePrintCore(time, name):
     #Dar instrução do movimento e Gravar o video correspondente ao movimento
     
     #Gravar video
-    #videoRecord.recordVid(time, name)
+    videoRecord.recordVid(time, name)
 
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -81,6 +81,7 @@ def movePrintCore(time, name):
             if fps_count == last_frame:
                 #vidProc.show_wait_destroy("last Frame", cimg)
                 cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
+                last_frame_img = frame
             if cv2.waitKey(1) == 27:
                 break
             print(fps_count)
@@ -92,7 +93,7 @@ def movePrintCore(time, name):
     n_rows_tg, n_cols_tg = grid_map.nRowsCols(totalGrid, cols*0.036)
     
     #MUDAR CENTERPOINT PARA PONTO REAL E NAO APROXIMAÇÃO
-    rect, _ = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
+    rect, cel_last_frame = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
     cimg1, p_after = vidProc.four_point_transform(cimg, rect, midFrame)
     print(p_after)
     vidProc.show_wait_destroy("last frame cell", cimg1)
@@ -107,15 +108,17 @@ def movePrintCore(time, name):
 
     #Record 
     
-    return d, d_total
+    return d, d_total, last_frame_img, intersectionPoints, p_after, cel_last_frame
 
 
 def nozzleCenterDist(frame, intersectionPoints, p, cel, cel_side):
     #Entra o frame final e encontra-se a coordenada do centro da forma de calibração
-    vidProc.findCircles(frame)
+    
+
+    cimg, nozzle_cord = vidProc.findCircles(frame)
     #Obter a célula e as coordenadas onde se encontra o nozzle
-    rect_nozzle, cel_nozzle = cellSum.fetchCellPoints(nozzle_cord, intersectionPoints, frame.shape[1]*0.005)
-    cimg, cel_cord_nozzle = vidProc.four_point_transform(frame, rect_init, nozzle_cord)
+    rect_nozzle, cel_nozzle = cellSum.fetchCellPoints(nozzle_cord, intersectionPoints, frame.shape[1]*0.005, frame.shape[1]*0.036)
+    cimg, cel_cord_nozzle = vidProc.four_point_transform(frame, rect_nozzle, nozzle_cord)
 
     #Vector between center of camera and nozzle
     vec_cels = cel_nozzle - cel
@@ -125,9 +128,22 @@ def nozzleCenterDist(frame, intersectionPoints, p, cel, cel_side):
 
     return vec
 
-def nozzleCamDist(vec, d):
+def nozzleCamDistCalc(vec, d):
     vec_nozzle_cam = d + vec
     return vec_nozzle_cam
+
+def nozzleCamProc():
+
+    d, d_total, last_frame_img, intersectionPoints, p, cel = movePrintCore(10, 'teste_nozzleCamProc.mp4')
+
+    vec = nozzleCenterDist(last_frame_img, intersectionPoints, np.asarray(p), np.asarray(cel), 2.381)
+
+    vec_nozzle_cam = nozzleCamDistCalc(vec, d)
+    print('O vetor entre o nozzle e a camera é de', vec_nozzle_cam)
+
+    return vec_nozzle_cam
+
+
 
 def steps_mm_cal(A, direction):
     #beforing calling this function, M503 and M83 must be sent to printer
@@ -159,4 +175,5 @@ def getSkewCoefxy():
     return xytan    
 
 
-movePrintCore(10, 'teste_moveprintcore1.mp4')
+#movePrintCore(10, 'teste_moveprintcore1.mp4')
+nozzleCamProc()
