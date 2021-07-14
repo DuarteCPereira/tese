@@ -2,7 +2,7 @@ import numpy as np
 import vidProc
 import cellSum
 import grid_map
-#import videoRecord
+import videoRecord
 import math
 import cv2
 
@@ -24,6 +24,7 @@ def movePrintCore(time, name):
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     last_frame = length-3
+    print(last_frame)
     #last_frame = 295
     fps_count = 1
     inital_frame = 5
@@ -78,7 +79,7 @@ def movePrintCore(time, name):
             #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
             
             if fps_count == last_frame:
-                vidProc.show_wait_destroy("last Frame", cimg)
+                #vidProc.show_wait_destroy("last Frame", cimg)
                 cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             if cv2.waitKey(1) == 27:
                 break
@@ -156,5 +157,6 @@ def getSkewCoefxy():
     angle = np.arccos(dot_product)
     xytan = math.tan((math.pi/2)-angle)
     return xytan    
+
 
 movePrintCore(10, 'teste_moveprintcore1.mp4')

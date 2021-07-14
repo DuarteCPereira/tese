@@ -109,7 +109,7 @@ def findIntPoints(img1, midFrame):
     cv2.rectangle(img, (border[0], border[1]), (cols-border[0], rows-border[1]), (0, 255, 20), 2)
     drawCenter(img, midFrame)
     for c in contours:
-        if cv2.contourArea(c)>cols*0.035:
+        if cv2.contourArea(c)>cols*0.015:
             # calculate moments for each contour
             M = cv2.moments(c)
             if M["m00"] != 0:
@@ -132,19 +132,49 @@ def findInitPoints(img1, midFrame):
 
 def findCircles(img):
     cimg=np.copy(img)
-
+    show_wait_destroy('teste', cimg)
     # Convert BGR to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    #define range of bluevcolor in hsv
+    #define range of blue color in hsv
     lower_blue = np.array([110,50,50])
     upper_blue = np.array([130,255,255])
 
-    # Threshold the HSV image to get only blue colors
-    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    #define range of red color in hsv
+    lower_red = np.array([160,50,50])
+    upper_red = np.array([180,255,255])
+    lower1 = np.array([0, 100, 20])
+    upper1 = np.array([10, 255, 255])
 
-    show_wait_destroy('123', mask)
-    circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT,1.5,20, param1=90,param2=20,minRadius=20,maxRadius=50)
+    # Threshold the HSV image to get only blue colors
+    mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    
+    # Threshold the HSV image to get only red colors
+    mask_red = cv2.inRange(hsv, lower1, upper1)
+
+    show_wait_destroy('123', mask_red)
+    
+
+    '''
+    # lower boundary RED color range values; Hue (0 - 10)
+    lower1 = np.array([0, 100, 20])
+    upper1 = np.array([10, 255, 255])
+    
+    # upper boundary RED color range values; Hue (160 - 180)
+    lower2 = np.array([160,100,20])
+    upper2 = np.array([179,255,255])
+    
+    lower_mask = cv2.inRange(hsv, lower1, upper1)
+    upper_mask = cv2.inRange(hsv, lower2, upper2)
+    
+    full_mask = lower_mask + upper_mask;
+    
+    result = cv2.bitwise_and(img, img, mask=full_mask)
+    show_wait_destroy('teste', full_mask)
+    '''
+
+    circles = cv2.HoughCircles(cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT,3,1000, param1=50,param2=100,minRadius=50,maxRadius=100)
     if circles is not None:
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
@@ -153,6 +183,7 @@ def findCircles(img):
             # draw the center of the circle
             cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
     
+    show_wait_destroy('cimg', cimg)
     return(cimg, i[:2])
 
 def four_point_transform(image, rect, midFrame):
@@ -226,3 +257,7 @@ def rescaleFrame(frame, scale):
 
 def cropImage(img, x, w, y, h):
     return img[y:y+h, x:x+h]
+
+
+img=cv2.imread('imagem_teste_red.jpg')
+findCircles(img)

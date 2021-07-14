@@ -85,10 +85,32 @@ def continuousGrid(intersectionPoints, intersectionPoints1, sumPoints, sumPoints
 def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     sorted_by_cols = totalGrid[totalGrid[:, 0].argsort()]
     sorted_by_rows = totalGrid[totalGrid[:, 1].argsort()]
-    
+
+    b = np.copy(totalGrid)
+    i1, _ = dsearchn(b, coordinate)
+    val1 = b[i1]
+    b  = np.delete(b, i1, axis=0)
+    i2, _ = dsearchn(b, coordinate)
+    val2 = b[i2]
+    b  = np.delete(b, i2, axis=0)
+    i3, _ = dsearchn(b, coordinate)
+    val3 = b[i3]
+    b  = np.delete(b, i3, axis=0)
+    i4, _ = dsearchn(b, coordinate)
+    val4 = b[i4]
+    b  = np.delete(b, i4, axis=0)
+    i5, _ = dsearchn(b, coordinate)
+    val5 = b[i5]
+    b  = np.delete(b, i5, axis=0)
+    i6, _ = dsearchn(b, coordinate)
+    val6 = b[i6]
+
+    a = np.array([list(val1), list(val2), list(val3), list(val4), list(val5), list(val6)])
+    a_sorted_by_cols = a[a[:, 0].argsort()]
+
     #cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0]+tolerance)[0]
-    cols_left_cp_i = np.where(sorted_by_cols[:, 0] < coordinate[0])[0]
-    cols_left_cp = sorted_by_cols[cols_left_cp_i]
+    cols_left_cp_i = np.where(a_sorted_by_cols[:, 0] < coordinate[0])[0]
+    cols_left_cp = a_sorted_by_cols[cols_left_cp_i]
     sorted_by_row_l = cols_left_cp[cols_left_cp[:, 1].argsort()]
     #sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1]+tolerance)[0]
     sorted_by_row_l_i = np.where(sorted_by_row_l[:, 1] < coordinate[1])[0]
@@ -100,8 +122,8 @@ def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     print('left bottom corner coordinates:', left_bottom_corner)
     print('left top corner coordinates:', left_top_corner)
 
-    cols_right_cp_i = list(range(cols_left_cp_i[-1], len(totalGrid)))
-    cols_right_cp = sorted_by_cols[cols_right_cp_i]
+    cols_right_cp_i = list(range(cols_left_cp_i[-1], len(a[:,0])))
+    cols_right_cp = a_sorted_by_cols[cols_right_cp_i]
     sorted_by_row_r = cols_right_cp[cols_right_cp[:, 1].argsort()]
     #sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1]+tolerance)[0]
     sorted_by_row_r_i = np.where(sorted_by_row_r[:, 1] < coordinate[1])[0]
@@ -112,6 +134,9 @@ def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     
     print('right bottom corner coordinates:', right_bottom_corner)
     print('right top corner coordinates:', right_top_corner)
+
+
+
 
     area = (right_bottom_corner[0] - left_bottom_corner[0])*(left_top_corner[1] - left_bottom_corner[1])
     if area < 40000:
