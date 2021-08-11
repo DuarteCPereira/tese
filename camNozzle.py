@@ -19,7 +19,7 @@ def movePrintCore(time, name):
     #Dar instrução do movimento e Gravar o video correspondente ao movimento
     
     #Gravar video
-    videoRecord.recordVid(time, name)
+    #videoRecord.recordVid(time, name)
 
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -111,7 +111,7 @@ def movePrintCore(time, name):
     return d, d_total, last_frame_img, intersectionPoints, p_after, cel_last_frame
 
 
-def nozzleCenterDist(frame, intersectionPoints, p, cel, cel_side):
+def nozzleCenterDist1(frame, intersectionPoints, p, cel, cel_side):
     #Entra o frame final e encontra-se a coordenada do centro da forma de calibração
     
 
@@ -127,6 +127,7 @@ def nozzleCenterDist(frame, intersectionPoints, p, cel, cel_side):
     vec = np.flip(vec_cels*cel_side) + vec_inside_cel*(cel_side/180)
 
     return vec
+
 
 def nozzleCamDistCalc(vec, d):
     vec_nozzle_cam = d + vec
@@ -144,24 +145,75 @@ def nozzleCamProc():
     return vec_nozzle_cam
 
 
+def nozzleCenterDist2(frame, midFrame):
+    cimg, nozzle_cord = vidProc.findCircles(frame)
 
-def steps_mm_cal(A, direction):
+    vec = nozzle_cord - midFrame
+
+    return vec
+
+def nozzleCamProc2():
+    #Give instruction to print calibration shape
+
+    #Give instruction to raise head
+
+    #Give instruction of first guess of displacement (disp_vector)
+
+    #Get the difference between center of camera and nozzle
+    vec = nozzleCenterDist2(frame, midFrame)
+    while vec > d_max:
+        #Estimate the adjustment displacement (disp_adjust)
+
+        # Give new comand to move (disp_adjust)
+
+        #Update disp_vector
+        disp_vector += disp_adjust
+
+        #Get new difference between center of camera and nozzle
+        vec = nozzleCenterDist2(frame, midFrame)
+
+    return disp_vector
+
+
+def pxToMm():
+    #Give command to move 1mm_xx
+
+    #Get vector in px of 1mm in xx
+    dpx_1mm_xx = movePrintCore(time, name)
+
+    #Give command to move 1mm_yy
+
+    #Get vector in px of 1mm in yy
+    dpx_1mm_yy = movePrintCore(time, name)
+
+    return 1/dpx_1mm_xx, 1/dpx_1mm_xx
+
+
+
+def steps_mm_cal_xx(A, direction):
     #beforing calling this function, M503 and M83 must be sent to printer
-    d_total = 9.9
-    instruction = 10*direction 
+    #Get A parameter from M503
+
+    #Give instruction to move 10 mm in xx and get dx
+    _, dx, _, _, _, _ = movePrintCore(time, name)
+    
+    dx = 9.9
     while True:
-        #d, d_total = movePrintCore(instruction)
-        dif = d_total - 10
+        #Make the printer move 10 mm in x again
+        dx = movePrintCore(time, name)
+
+        dif = dx - 10
         if abs(dif) < 0.05:
             D = A
             break
         elif dif > 0:
-            D = 10*A/d_total
+            D = 10*A/dx
         elif dif < 0:
-            D = d_total*A/10
+            D = dx*A/10
         A = D
 
         #new parameter D must be sent with GCode M92 and saved with M500
+
     return D
 
 def getSkewCoefxy():
@@ -175,5 +227,5 @@ def getSkewCoefxy():
     return xytan    
 
 
-#movePrintCore(10, 'teste_moveprintcore1.mp4')
-nozzleCamProc()
+movePrintCore(10, '10mm_100mm_min_xx.mp4')
+#nozzleCamProc()
