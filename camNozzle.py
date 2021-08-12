@@ -19,7 +19,7 @@ def movePrintCore(time, name):
     #Dar instrução do movimento e Gravar o video correspondente ao movimento
     
     #Gravar video
-    #videoRecord.recordVid(time, name)
+    videoRecord.recordVid(time, name)
 
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -227,5 +227,5 @@ def getSkewCoefxy():
     return xytan    
 
 
-movePrintCore(10, '10mm_100mm_min_xx.mp4')
+#movePrintCore(10, '10mm_100mm_min_xx.mp4')
 #nozzleCamProc()

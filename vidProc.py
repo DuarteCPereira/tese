@@ -132,7 +132,7 @@ def findInitPoints(img1, midFrame):
 
 def findCircles(img):
     cimg=np.copy(img)
-    show_wait_destroy('teste', cimg)
+    #show_wait_destroy('teste', cimg)
     # Convert BGR to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -153,7 +153,7 @@ def findCircles(img):
     # Threshold the HSV image to get only red colors
     mask_red = cv2.inRange(hsv, lower1, upper1)
 
-    show_wait_destroy('123', mask_red)
+    #show_wait_destroy('123', mask_red)
     
 
     '''
@@ -183,7 +183,7 @@ def findCircles(img):
             # draw the center of the circle
             cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
     
-    show_wait_destroy('cimg', cimg)
+    #show_wait_destroy('cimg', cimg)
     return(cimg, i[:2])
 
 def four_point_transform(image, rect, midFrame):

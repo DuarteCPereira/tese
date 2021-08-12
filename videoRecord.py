@@ -1,4 +1,4 @@
-#import picamera
+import picamera
 from time import sleep
 from subprocess import call
 import os
