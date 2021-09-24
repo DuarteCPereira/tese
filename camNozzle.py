@@ -19,7 +19,7 @@ def movePrintCore(time, name):
     #Dar instrução do movimento e Gravar o video correspondente ao movimento
     
     #Gravar video
-    videoRecord.recordVid(time, name)
+    #videoRecord.recordVid(time, name)
 
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -190,42 +190,85 @@ def pxToMm():
 
 
 
-def steps_mm_cal_xx(A, direction):
+def steps_mm_cal_xx(A, time, name):
     #beforing calling this function, M503 and M83 must be sent to printer
     #Get A parameter from M503
 
     #Give instruction to move 10 mm in xx and get dx
-    _, dx, _, _, _, _ = movePrintCore(time, name)
+    #_, dx, _, _, _, _ = movePrintCore(time, name)
     
-    dx = 9.9
+    #dx = 9.9
     while True:
         #Make the printer move 10 mm in x again
-        dx = movePrintCore(time, name)
+        _, dx, _, _, _, _ = movePrintCore(time, name)
 
         dif = dx - 10
         if abs(dif) < 0.05:
             D = A
+            print("Steps are calibrated")
             break
         elif dif > 0:
             D = 10*A/dx
+            print("X_Steps require calibration")
         elif dif < 0:
             D = dx*A/10
+            print("X_Steps require calibration")
         A = D
+        break
+
+        #new parameter D must be sent with GCode M92 and saved with M500
+
+    return D
+    
+def steps_mm_cal_yy(A, time, name):
+    #beforing calling this function, M503 and M83 must be sent to printer
+    #Get A parameter from M503
+
+    #Give instruction to move 10 mm in xx and get dx
+    #_, dx, _, _, _, _ = movePrintCore(time, name)
+    
+    #dx = 9.9
+    while True:
+        #Make the printer move 10 mm in x again
+        _, dy, _, _, _, _ = movePrintCore(time, name)
+
+        dif = dy - 10
+        if abs(dif) < 0.05:
+            D = A
+            print("Steps are calibrated")
+            break
+        elif dif > 0:
+            D = 10*A/dy
+            print("Y_Steps require calibration")
+        elif dif < 0:
+            D = dy*A/10
+            print("Y_Steps require calibration")
+        A = D
+        break
 
         #new parameter D must be sent with GCode M92 and saved with M500
 
     return D
 
-def getSkewCoefxy():
+def getSkewCoefxy(dx, dy):
     #move the printCore (-10, 0) for example
-    dx, dx_total = movePrintCore([-10, 0])
+    #dx, dx_total = movePrintCore([-10, 0])
+    #dx = np.array([-10, 0])
     #move the printCore (0, -10) for example
-    dy, dy_total = movePrintCore([0, -10])
-    dot_product = np.dot(dy, dx)
-    angle = np.arccos(dot_product)
-    xytan = math.tan((math.pi/2)-angle)
-    return xytan    
+    #dy, dy_total = movePrintCore([0, -10])
+    #dy = np.array([0, -10])
 
+    unit_vector_1 = dx / np.linalg.norm(dx)
+    unit_vector_2 = dy / np.linalg.norm(dy)
+
+    dot_product = np.dot(unit_vector_1, unit_vector_2)
+    angle = np.arccos(dot_product)*(180/math.pi)
+
+
+    #dot_product = np.dot(dy, dx)
+    #angle = (np.arccos(dot_product))*(180/math.pi)
+    #xytan = math.tan((math.pi/2)-angle)
+    return angle, unit_vector_1, unit_vector_2
 
 #movePrintCore(10, '10mm_100mm_min_xx.mp4')
 #nozzleCamProc()

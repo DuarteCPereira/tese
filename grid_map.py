@@ -1,6 +1,8 @@
 import numpy as np
 import cellSum
 from matplotlib import pyplot as plt
+from matplotlib.lines import Line2D
+import matplotlib.patches as mpatches
 import math
 
 
@@ -104,7 +106,81 @@ def global_cel_location(coordinate, IP1, n_rows_i, n_cols_i, tg, cel_init, n_row
     return start_cel, cel_in_tg
 
     
+def plot_skew_angle(dx, dy):
+    def get_angle_plot(line1, line2, offset=1, color=None, origin=(0, 0), 
+                   len_x_axis = 1, len_y_axis = 1):
+    
+        l1xy = line1.get_xydata()
+        
+        # Angle between line1 and x-axis
+        y1 = l1xy[1][1] - l1xy[0][1]
+        x1 = l1xy[1][0] - l1xy[0][0]
+        slope1 = y1 / float(x1)
+        # Allows you to use this in different quadrants
+        angle1 = math.degrees(math.atan2(y1, x1))
+        
+        l2xy = line2.get_xydata()
+        
+        # Angle between line2 and x-axis
+        y2 = l2xy[1][1] - l2xy[0][1]
+        x2 = l2xy[1][0] - l2xy[0][0]
+        slope2 = y2 / float(x2)
+        angle2 = math.degrees(math.atan2(y2, x2))
+        
+        theta1 = min(angle1, angle2)
+        theta2 = max(angle1, angle2)
+        
+        angle = theta2 - theta1
+        
+        if color is None:
+            color = line1.get_color() # Uses the color of line 1 if color parameter is not passed.
+        
+        return mpatches.Arc(origin, len_x_axis*offset, len_y_axis*offset, 0, 
+                theta1, theta2, color=color, 
+                label = r'${:.4}^\circ$'.format(float(angle)))
 
+
+    def get_angle_text(angle_plot):
+        angle = angle_plot.get_label()
+        # angle = r'${:.4}^\circ$'.format(angle) # Display angle upto 2 decimal places
+        
+        # Get the vertices of the angle arc
+        vertices = angle_plot.get_verts()
+        
+        # Get the midpoint of the arc extremes
+        x_width = (vertices[0][0] + vertices[-1][0]) / 2.0
+        y_width = (vertices[0][1] + vertices[-1][1]) / 2.0
+        
+        separation_radius = max(x_width/2.0, y_width/2.0)
+        
+        return [x_width + separation_radius, y_width + separation_radius, angle]
+
+    fig = plt.figure()
+
+    #line_1 = Line2D([0,1], [0,4], linewidth=1, linestyle = "-", color="green")
+    #line_2 = Line2D([0,4.5], [0,3], linewidth=1, linestyle = "-", color="red")
+    line_1 = Line2D([0, 0], [dx[0], dx[1]], linewidth=1, linestyle = "-", color="green")
+    line_2 = Line2D([0, 0], [dy[0], dy[1]], linewidth=1, linestyle = "-", color="red")  
+
+
+    ax = fig.add_subplot(1,1,1)
+
+    ax.add_line(line_1)
+    ax.add_line(line_2)
+
+    angle_plot = get_angle_plot(line_1, line_2, 1)
+    angle_text = get_angle_text(angle_plot) 
+    # Gets the arguments to be passed to ax.text as a list to display the angle value besides the arc
+
+    ax.add_patch(angle_plot) # To display the angle arc
+    ax.text(*angle_text) # To display the angle value
+
+    ax.set_xlim(-10,7)
+    ax.set_ylim(-10,5)
+
+
+    plt.legend()
+    plt.savefig('./vector_angle.png', dpi=300)
 
 
 if __name__ == '__main__':

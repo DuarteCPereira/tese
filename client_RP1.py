@@ -44,7 +44,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     #d = np.asarray([1, 2])
                     m_pickle = pickle.dumps(d)
 
-                    time.sleep(5)
+                    time.sleep(2)
                     m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
                     client_socket.send(m_pickle_header + m_pickle)
 
@@ -80,13 +80,77 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                             pass
 
 
-                    #D = camNozzle.steps_mm_cal_xx(A, 20)
+                    D = camNozzle.steps_mm_cal_xx(A, 20, 'test.mp4')
                     #Send D to RP
-                    D = input(" > Insira o parametro D")
+                    #D = input(" > Insira o parametro D")
                     message = f"{D}"
                     message = message.encode("utf-8")
                     message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                     client_socket.send(message_header + message)
+                    
+                elif message == f"Proc3":
+                    #Receive parameter A
+                    while True:
+                        try:
+                            username_header = client_socket.recv(HEADER_LENGTH)
+                            if not len(username_header):
+                                print("connection closed by the server")
+                                sys.exit()
+
+                            username_length = int(username_header.decode("utf-8").strip())
+                            username = client_socket.recv(username_length).decode("utf-8")
+
+                            message_header = client_socket.recv(HEADER_LENGTH)
+                            message_length = int(message_header.decode("utf-8").strip())
+                            message = client_socket.recv(message_length).decode("utf-8")
+                            if message:
+                                A = float(message)
+                                if A:
+                                    break
+                        except IOError as e:
+                            if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                                print('Reading error', str(e))
+                                sys.exit()
+                            continue
+
+                        
+                        except Exception as e:
+                            print('General error', str(e))
+                            sys.exit()
+                            pass
+
+
+                    D = camNozzle.steps_mm_cal_xx(A, 20, 'test.mp4')
+                    #Send D to RP
+                    #D = input(" > Insira o parametro D")
+                    message = f"{D}"
+                    message = message.encode("utf-8")
+                    message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
+                    client_socket.send(message_header + message)
+
+                if message == f"Proc4":
+                    a = True
+                    b = True
+                    while a:
+                        #Enviar instruções para o raspberry processar
+                        dx, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                        print(dx)
+                        #d = np.asarray([1, 2])
+                        a = False
+                    
+                    while b:
+                        #Enviar instruções para o raspberry processar
+                        dy, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                        print(dy)
+                        a = False
+                    
+                    skew_angle = camNozzle.getSkewCoefxy(dx, dy)
+
+                    message = f"{skew_angle}"
+                    message = message.encode("utf-8")
+                    message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
+                    client_socket.send(message_header + message)
+                
           
 
         except IOError as e:
@@ -105,7 +169,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 def main():
     username = "RP1"
     HEADER_LENGTH = 10
-    IP = '10.16.232.157'
+    IP = '10.16.232.63'
     PORT = 1234
     message = test_client_func(username, HEADER_LENGTH, IP, PORT)
     print(message)

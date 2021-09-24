@@ -7,6 +7,7 @@ yztan = yzerr/yzlen
 zxtan = zxerr/zxlen
 
 '''
+#Enters a G-Code file with the desired 3D Model and returns the Negative Skewed Model to compensate Printer's skew
 
 def gSkewer(filename, xytan, yztan, zxtan):
     outname = re.sub(r'.gcode', '-skewed.gcode', filename)
