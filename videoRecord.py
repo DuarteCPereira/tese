@@ -1,4 +1,4 @@
-#import picamera
+import picamera
 from time import sleep
 from subprocess import call
 import os
@@ -23,5 +23,18 @@ def recordVid(t, name):
     
     command = "MP4Box -add rec.h264 " + name
     call([command], shell=True)
-    
+
+def recordPic(name):
+    b = './' + name
+    a = os.path.isfile(b)
+    if a:
+        os.remove(b)
+
+    camera = picamera.PiCamera()
+
+    camera.resolution = (480, 320)
+    camera.start_preview()
+    sleep(5)
+    camera.capture(name)
+    camera.stop_preview()
 #recordVid(20, "Y_mov_skew.mp4")

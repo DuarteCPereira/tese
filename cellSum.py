@@ -136,7 +136,8 @@ def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     print('right top corner coordinates:', right_top_corner)
 
 
-
+    sidePx = [math.sqrt(((right_bottom_corner[0] - left_bottom_corner[0])**2)+((right_bottom_corner[1] - left_bottom_corner[1])**2)),
+                math.sqrt(((left_top_corner[0] - left_bottom_corner[0])**2)+((left_top_corner[1] - left_bottom_corner[1])**2))]
 
     area = (right_bottom_corner[0] - left_bottom_corner[0])*(left_top_corner[1] - left_bottom_corner[1])
     if area < 40000:
@@ -166,7 +167,7 @@ def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     cel = [cel_row, cel_col]
     rect = np.array([left_top_corner, right_top_corner, right_bottom_corner, left_bottom_corner], dtype=np.float32)
 
-    return rect, cel
+    return rect, cel, sidePx
 
 def plotIntPoints(totalGrid, marker):
    

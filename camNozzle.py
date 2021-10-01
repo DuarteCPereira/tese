@@ -19,7 +19,7 @@ def movePrintCore(time, name):
     #Dar instrução do movimento e Gravar o video correspondente ao movimento
     
     #Gravar video
-    #videoRecord.recordVid(time, name)
+    videoRecord.recordVid(time, name)
 
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -54,7 +54,7 @@ def movePrintCore(time, name):
                 intersectionPoints, totalGrid, img = vidProc.findInitPoints(frame, midFrame)
                 n_rows_i, n_cols_i = grid_map.nRowsCols(intersectionPoints, cols*0.036)
                 D_xy_mean_total = [0, 0]
-                rect_init, cel_init = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
+                rect_init, cel_init, sidePx = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
                 cimg, cel_cord_init = vidProc.four_point_transform(img, rect_init, midFrame)
                 print(cel_cord_init)
                 vidProc.show_wait_destroy('teste', cimg)
@@ -93,7 +93,7 @@ def movePrintCore(time, name):
     n_rows_tg, n_cols_tg = grid_map.nRowsCols(totalGrid, cols*0.036)
     
     #MUDAR CENTERPOINT PARA PONTO REAL E NAO APROXIMAÇÃO
-    rect, cel_last_frame = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
+    rect, cel_last_frame, _ = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
     cimg1, p_after = vidProc.four_point_transform(cimg, rect, midFrame)
     print(p_after)
     vidProc.show_wait_destroy("last frame cell", cimg1)
@@ -101,14 +101,14 @@ def movePrintCore(time, name):
     start_cel, end_cel = grid_map.global_cel_location(midFrame, intersectionPoints, n_rows_i, n_cols_i, totalGrid, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, cols*0.036, cols*0.005)
     
     grid_map.createMesh(n_rows_tg, n_cols_tg, 2,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel))
-    d, d_total = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), 2.381)
+    d, d_total = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), 2)
     print('A distância percorrida foi de', d[0],'[mm] em xx, e', d[1], '[mm] em yy')
     print('A distância total é de ', d_total, '[mm].')
 
 
     #Record 
     
-    return d, d_total, last_frame_img, intersectionPoints, p_after, cel_last_frame
+    return d, d_total, last_frame_img, intersectionPoints, p_after, cel_last_frame, sidePx
 
 
 def nozzleCenterDist1(frame, intersectionPoints, p, cel, cel_side):
@@ -117,7 +117,7 @@ def nozzleCenterDist1(frame, intersectionPoints, p, cel, cel_side):
 
     cimg, nozzle_cord = vidProc.findCircles(frame)
     #Obter a célula e as coordenadas onde se encontra o nozzle
-    rect_nozzle, cel_nozzle = cellSum.fetchCellPoints(nozzle_cord, intersectionPoints, frame.shape[1]*0.005, frame.shape[1]*0.036)
+    rect_nozzle, cel_nozzle, sidePx = cellSum.fetchCellPoints(nozzle_cord, intersectionPoints, frame.shape[1]*0.005, frame.shape[1]*0.036)
     cimg, cel_cord_nozzle = vidProc.four_point_transform(frame, rect_nozzle, nozzle_cord)
 
     #Vector between center of camera and nozzle
@@ -135,7 +135,7 @@ def nozzleCamDistCalc(vec, d):
 
 def nozzleCamProc():
 
-    d, d_total, last_frame_img, intersectionPoints, p, cel = movePrintCore(10, 'teste_nozzleCamProc.mp4')
+    d, d_total, last_frame_img, intersectionPoints, p, cel, _ = movePrintCore(10, 'teste_nozzleCamProc.mp4')
 
     vec = nozzleCenterDist(last_frame_img, intersectionPoints, np.asarray(p), np.asarray(cel), 2.381)
 
@@ -175,16 +175,14 @@ def nozzleCamProc2():
     return disp_vector
 
 
-def pxToMm():
+def MmToPx(dx_1mm, dy_1mm, sidePx, celLen):
     #Give command to move 1mm_xx
-
-    #Get vector in px of 1mm in xx
-    dpx_1mm_xx = movePrintCore(time, name)
+    PxPerMm = 
 
     #Give command to move 1mm_yy
 
     #Get vector in px of 1mm in yy
-    dpx_1mm_yy = movePrintCore(time, name)
+    dpx_1mm_yy, _, _, _, _, _, _ = movePrintCore(time, name)
 
     return 1/dpx_1mm_xx, 1/dpx_1mm_xx
 
@@ -200,7 +198,7 @@ def steps_mm_cal_xx(A, time, name):
     #dx = 9.9
     while True:
         #Make the printer move 10 mm in x again
-        _, dx, _, _, _, _ = movePrintCore(time, name)
+        _, dx, _, _, _, _, _ = movePrintCore(time, name)
 
         dif = dx - 10
         if abs(dif) < 0.05:
@@ -230,7 +228,7 @@ def steps_mm_cal_yy(A, time, name):
     #dx = 9.9
     while True:
         #Make the printer move 10 mm in x again
-        _, dy, _, _, _, _ = movePrintCore(time, name)
+        _, dy, _, _, _, _, _ = movePrintCore(time, name)
 
         dif = dy - 10
         if abs(dif) < 0.05:

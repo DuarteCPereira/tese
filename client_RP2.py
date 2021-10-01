@@ -18,7 +18,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     username = my_username.encode("utf-8")
     username_header = f"{len(username):<{HEADER_LENGTH}}".encode("utf-8")
     client_socket.send(username_header + username)
-
+    celLen = 2
 
     #Esperar por uma mensage com o processo
     while True:
@@ -38,9 +38,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 message_length = int(message_header.decode("utf-8").strip())
                 message = client_socket.recv(message_length).decode("utf-8")
 
-                if message == f"Proc1_1":
+                if message == f"Proc1_2":
                     #Enviar instruções para o raspberry processar
-                    d, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                    d, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
                     #d = np.asarray([1, 2])
                     m_pickle = pickle.dumps(d)
 
@@ -48,7 +48,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
                     client_socket.send(m_pickle_header + m_pickle)
 
-                elif message == f"Proc2_1":
+                elif message == f"Proc2_2":
                     #Receive parameter A
                     while True:
                         try:
@@ -88,7 +88,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                     client_socket.send(message_header + message)
                     
-                elif message == f"Proc3_1":
+                elif message == f"Proc3_2":
                     #Receive parameter A
                     while True:
                         try:
@@ -128,19 +128,19 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                     client_socket.send(message_header + message)
 
-                if message == f"Proc4_1":
+                if message == f"Proc4_2":
                     a = True
                     b = True
                     while a:
                         #Enviar instruções para o raspberry processar
-                        dx, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                        dx, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
                         print(dx)
                         #d = np.asarray([1, 2])
                         a = False
                     
                     while b:
                         #Enviar instruções para o raspberry processar
-                        dy, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                        dy, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
                         print(dy)
                         b = False
                     
@@ -150,6 +150,38 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     message = message.encode("utf-8")
                     message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                     client_socket.send(message_header + message)
+                    
+                if message == "teste":
+                    a = True
+                    b = True
+                    while a:
+                        #Enviar instruções para o raspberry processar
+                        dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test.mp4')
+                        print(dx)
+                        #d = np.asarray([1, 2])
+                        print(sidePx, "sidePx para o mov em xx")
+                        a = False
+                    
+                    while b:
+                        #Enviar instruções para o raspberry processar
+                        dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test.mp4')
+                        print(dy)
+                        print(sidePx, "sidePx para o mov em yy")
+                        b = False
+                    
+                    #Saber a quantos pixeis corresponde o movimento de 1mm em ambas as direções (xx e yy) 
+                    dpx_mm = camNozzle.MmToPx(dx, dy, sidePx, celLen)
+
+                    #Enviar instruções para o raspberry detetar o qr code
+                    #detectmarker
+                    
+                    #Recolher distẫncia em px para o qr code
+                    #Enviar para o pc a nova instrução a dar em mm
+                    
+                    m_pickle = pickle.dumps(d)
+                    time.sleep(2)
+                    m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+                    client_socket.send(m_pickle_header + m_pickle)
                 
           
 
@@ -167,7 +199,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     return message_received
 
 def main():
-    username = "RP1"
+    username = "RP2"
     HEADER_LENGTH = 10
     IP = '10.16.232.63'
     PORT = 1234
