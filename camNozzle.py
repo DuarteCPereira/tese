@@ -177,14 +177,16 @@ def nozzleCamProc2():
 
 def MmToPx(dx_1mm, dy_1mm, sidePx, celLen):
     #Give command to move 1mm_xx
-    PxPerMm = 
+    PxPerMm = [sidePx[0]/celLen, sidePx[1]/celLen]
 
-    #Give command to move 1mm_yy
+    #Quantity of pixels (in x and y direction) per mm
+    dpx_1mm_xx = [dx_1mm[0]/PxPerMm[0], dx_1mm[1]/PxPerMm[1]]
 
-    #Get vector in px of 1mm in yy
-    dpx_1mm_yy, _, _, _, _, _, _ = movePrintCore(time, name)
+    dpx_1mm_yy = [dy_1mm[0]/PxPerMm[0], dy_1mm[1]/PxPerMm[1]]
 
-    return 1/dpx_1mm_xx, 1/dpx_1mm_xx
+    dpx_mm = [dpx_1mm_xx, dpx_1mm_yy]
+
+    return dpx_mm
 
 
 
