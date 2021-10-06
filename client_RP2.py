@@ -10,7 +10,7 @@ import videoRecord
 import detectMarker
 
 from videoRecord import recordVid
-
+#1
 
 def test_client_func(username, HEADER_LENGTH, IP, PORT):
     #my_username = input("Username: ")
