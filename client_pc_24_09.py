@@ -6,7 +6,7 @@ import errno
 import sys
 import time
 import pickle
-
+import numpy as np
 
 def give_instruction(string):
     h2.add_instruction_to_queue(string+"\n")
@@ -324,19 +324,18 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
                 give_instruction("G0 X1 F100")
                 
-                time.sleep(5)
+                time.sleep(7)
                 give_instruction("G0 Y1 F100")
 
                 #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
-                initial_estimate = [10, 2]
                 time.sleep(5)
-                give_instruction(f"G0 X{initial_estimate[0]} Y{initial_estimate[1]} F100")
 
-
-                #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
+                initial_estimate = np.array([10, 2])
+                instruction = np.copy(initial_estimate)
 
 
                 while a:
+                    give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F100")
                     try:
                         while a:
                             #receber a distância que deve andar a cabeça
@@ -353,9 +352,10 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                             message = client_socket.recv(message_length).decode("utf-8")
                             d = pickle.loads(message)
                             if d[0] != 0 and d[1] != 0:
-                                initial_estimate +=d
+                                instruction +=d
                             else:
-                                a = 0
+                                a = False
+
 
 
                     except IOError as e:

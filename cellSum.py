@@ -119,8 +119,8 @@ def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     left_bottom_corner = [cols_left_cp[-1,0], rows_left_cp_b[-1,1]]
     left_top_corner = [cols_left_cp[-1,0], sorted_by_row_l[sorted_by_row_l_i[-1]+1,1]]
     
-    print('left bottom corner coordinates:', left_bottom_corner)
-    print('left top corner coordinates:', left_top_corner)
+    #print('left bottom corner coordinates:', left_bottom_corner)
+    #print('left top corner coordinates:', left_top_corner)
 
     cols_right_cp_i = list(range(cols_left_cp_i[-1], len(a[:,0])))
     cols_right_cp = a_sorted_by_cols[cols_right_cp_i]
@@ -132,15 +132,15 @@ def fetchCellPoints(coordinate, totalGrid, tolerance, d_min):
     right_bottom_corner = [cols_right_cp[1,0], rows_right_cp_b[-1,1]]
     right_top_corner = [cols_right_cp[1,0], sorted_by_row_r[sorted_by_row_r_i[-1]+1,1]]
     
-    print('right bottom corner coordinates:', right_bottom_corner)
-    print('right top corner coordinates:', right_top_corner)
+    #print('right bottom corner coordinates:', right_bottom_corner)
+    #print('right top corner coordinates:', right_top_corner)
 
 
     sidePx = [math.sqrt(((right_bottom_corner[0] - left_bottom_corner[0])**2)+((right_bottom_corner[1] - left_bottom_corner[1])**2)),
                 math.sqrt(((left_top_corner[0] - left_bottom_corner[0])**2)+((left_top_corner[1] - left_bottom_corner[1])**2))]
 
     area = (right_bottom_corner[0] - left_bottom_corner[0])*(left_top_corner[1] - left_bottom_corner[1])
-    if area < 40000:
+    if area < 4000:
         print('Erro na deteção da célula!')
     
     #Criar ponto ficticio que simula +- o centro da célula com base nos cantos encontrados

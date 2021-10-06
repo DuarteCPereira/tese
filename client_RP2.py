@@ -6,6 +6,10 @@ import errno
 import sys
 import time
 import pickle
+import videoRecord
+import detectMarker
+
+from videoRecord import recordVid
 
 
 def test_client_func(username, HEADER_LENGTH, IP, PORT):
@@ -154,6 +158,8 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 if message == "teste":
                     a = True
                     b = True
+                    c = True
+                    d = True
                     while a:
                         #Enviar instruções para o raspberry processar
                         dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test.mp4')
@@ -171,18 +177,31 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     
                     #Saber a quantos pixeis corresponde o movimento de 1mm em ambas as direções (xx e yy) 
                     dpx_mm = camNozzle.MmToPx(dx, dy, sidePx, celLen)
+                        
+                    while c:
 
-                    #Enviar instruções para o raspberry detetar o qr code
-                    #detectmarker
-                    
-                    #Recolher distẫncia em px para o qr code
-                    #Enviar para o pc a nova instrução a dar em mm
-                    
-                    m_pickle = pickle.dumps(d)
-                    time.sleep(2)
-                    m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
-                    client_socket.send(m_pickle_header + m_pickle)
-                
+                        #Perguntar ao utilizador se a camera já se encontra em cima do QR
+                        input("Pressione um tecla para continuar.")
+                        #Enviar instruções para o raspberry detetar o qr code
+                        videoRecord.recordPic("MarkerDistance.png")
+
+
+                        d_xy_px = detectMarker.detectMark("MarkerDistance.png")
+                        #Converter a distância em pixeis para mm
+                        d_xy_mm = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
+                        
+                        if d_xy_mm[0] <= 0.1 and d_xy_mm[1] <= 0.1:
+                            d_xy_mm[0] = 0
+                            d_xy_mm[1] = 0
+                            c = False
+
+
+                        #Recolher distẫncia em px para o qr code
+                        #Enviar para o pc a nova instrução a dar em mm
+                        
+                        m_pickle = pickle.dumps(d_xy_mm)
+                        m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+                        client_socket.send(m_pickle_header + m_pickle)
           
 
         except IOError as e:

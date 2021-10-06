@@ -4,7 +4,7 @@ import imutils
 from imutils.video import VideoStream
 import numpy as np
 
-def detectmark(image, type):
+def detectMark(image, type):
 
 
 	# define names of each possible ArUco tag OpenCV supports
@@ -99,7 +99,7 @@ def detectmark(image, type):
 	cv2.destroyWindow("Image")
 
 	#Vetor do centro do frame ate ao marker em px
-	d_xy_px = center_coordinates - (cX, cY)
+	d_xy_px = (cX, cY) - center_coordinates
 	return d_xy_px
 
 def detectmarkVid(type):
@@ -190,4 +190,5 @@ def detectmarkVid(type):
 	vs.stop()
 
 #detectmarkVid("DICT_5X5_100")
-detectmark("teste.jpg", "DICT_5X5_100")
+d_xy_px = detectMark("teste.jpg", "DICT_5X5_100")
+#print(d_xy_px)

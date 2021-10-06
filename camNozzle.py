@@ -24,7 +24,7 @@ def movePrintCore(time, name):
     cap = cv2.VideoCapture(name)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     last_frame = length-3
-    print(last_frame)
+    #print(last_frame)
     #last_frame = 295
     fps_count = 1
     inital_frame = 5
@@ -50,16 +50,16 @@ def movePrintCore(time, name):
                 centerPoint = np.array([]).reshape(0, 2)
                 midFrame = np.flip(np.asarray(frame.shape[:2])/2)
                 centerPoint = np.vstack((centerPoint, midFrame))
-                print(centerPoint[-1,:])
+                #print(centerPoint[-1,:])
                 intersectionPoints, totalGrid, img = vidProc.findInitPoints(frame, midFrame)
                 n_rows_i, n_cols_i = grid_map.nRowsCols(intersectionPoints, cols*0.036)
                 D_xy_mean_total = [0, 0]
                 rect_init, cel_init, sidePx = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
                 cimg, cel_cord_init = vidProc.four_point_transform(img, rect_init, midFrame)
-                print(cel_cord_init)
-                vidProc.show_wait_destroy('teste', cimg)
-                vidProc.show_wait_destroy('teste', img)
-                cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
+                #print(cel_cord_init)
+                #vidProc.show_wait_destroy('teste', cimg)
+                #vidProc.show_wait_destroy('teste', img)
+                #cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             
             #lines,cimg=vidProc.binaryGridDetection(frame)
             #vidProc.show_wait_destroy('posição do centro na celula',cimg)
@@ -75,32 +75,36 @@ def movePrintCore(time, name):
             #cimg = vidProc.findCircles(frame)
 
             #vidProc.show_wait_destroy("frame", cimg)
-            cv2.imshow('preview', cimg)
+
+            #Descomentar caso seja para ver a imagem
+            #cv2.imshow('preview', cimg)
+
             #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
             
             if fps_count == last_frame:
                 #vidProc.show_wait_destroy("last Frame", cimg)
-                cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
+                #cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
                 last_frame_img = frame
             if cv2.waitKey(1) == 27:
                 break
-            print(fps_count)
+            #print(fps_count)
         fps_count += 1
         #print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
-    cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
+    #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
     n_rows_tg, n_cols_tg = grid_map.nRowsCols(totalGrid, cols*0.036)
     
     #MUDAR CENTERPOINT PARA PONTO REAL E NAO APROXIMAÇÃO
     rect, cel_last_frame, _ = cellSum.fetchCellPoints(midFrame, intersectionPoints, cols*0.005, cols*0.036)
     cimg1, p_after = vidProc.four_point_transform(cimg, rect, midFrame)
-    print(p_after)
-    vidProc.show_wait_destroy("last frame cell", cimg1)
+    #print(p_after)
+    #vidProc.show_wait_destroy("last frame cell", cimg1)
     
     start_cel, end_cel = grid_map.global_cel_location(midFrame, intersectionPoints, n_rows_i, n_cols_i, totalGrid, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, cols*0.036, cols*0.005)
     
-    grid_map.createMesh(n_rows_tg, n_cols_tg, 2,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel))
+    #Descomentar caso seja para dar display da figura com o plot do deslocamento
+    #grid_map.createMesh(n_rows_tg, n_cols_tg, 2,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel))
     d, d_total = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), 2)
     print('A distância percorrida foi de', d[0],'[mm] em xx, e', d[1], '[mm] em yy')
     print('A distância total é de ', d_total, '[mm].')
@@ -180,11 +184,12 @@ def MmToPx(dx_1mm, dy_1mm, sidePx, celLen):
     PxPerMm = [sidePx[0]/celLen, sidePx[1]/celLen]
 
     #Quantity of pixels (in x and y direction) per mm
-    dpx_1mm_xx = [dx_1mm[0]/PxPerMm[0], dx_1mm[1]/PxPerMm[1]]
+    dpx_1mm_xx = [int(dx_1mm[0]*PxPerMm[0]), int(dx_1mm[1]*PxPerMm[1])]
 
-    dpx_1mm_yy = [dy_1mm[0]/PxPerMm[0], dy_1mm[1]/PxPerMm[1]]
+    dpx_1mm_yy = [int(dy_1mm[0]*PxPerMm[0]), int(dy_1mm[1]*PxPerMm[1])]
 
-    dpx_mm = [dpx_1mm_xx, dpx_1mm_yy]
+    dpx_mm = np.array([dpx_1mm_xx, dpx_1mm_yy])
+    dpx_mm = dpx_mm.transpose()
 
     return dpx_mm
 

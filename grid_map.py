@@ -16,7 +16,7 @@ def nRowsCols(tg, d_min):
             n_cols += 1
             Dx += d
     Dx_mean = Dx / n_cols
-    print('o número de colunas é', n_cols, 'com um espaçamento médio de', Dx_mean, '!')
+    #print('o número de colunas é', n_cols, 'com um espaçamento médio de', Dx_mean, '!')
 
     rows = sorted(tg[:, 1])
     n_rows = 0
@@ -27,7 +27,7 @@ def nRowsCols(tg, d_min):
             n_rows += 1
             Dy += d
     Dy_mean = Dy / n_rows
-    print('o número de linhas é', n_rows, 'com um espaçamento médio de', Dy_mean, '!')
+    #print('o número de linhas é', n_rows, 'com um espaçamento médio de', Dy_mean, '!')
     return n_rows, n_cols
 
 
@@ -57,6 +57,7 @@ def createMesh(n_rows, n_cols, side_len, p_init, p_end, cel_init, end_cel):
     ax.arrow(c[0], c[1], d[0] - c[0], d[1] - c[1], head_width=0.2, head_length=0.2, fc='r', ec='r')
 
     plt.show()
+    
     return None
 
 def dist_calc(p_init, p, cel_init, cel, cel_side):
@@ -64,11 +65,12 @@ def dist_calc(p_init, p, cel_init, cel, cel_side):
     dist_inside_cel = p - p_init
     #mudar este 180 mais tarde
     d = np.flip(dist_cels*cel_side) + dist_inside_cel*(cel_side/180)
+    d[0] = d[0]*(-1)
     d_total = math.sqrt((d[0]**2) + (d[1]**2))
     return d, d_total
 
 def global_cel_location(coordinate, IP1, n_rows_i, n_cols_i, tg, cel_init, n_rows_tg, n_cols_tg, D_xy_mean_total, d_min, tolerance):
-    _, cel = cellSum.fetchCellPoints(coordinate, IP1, tolerance, d_min)
+    _, cel, _ = cellSum.fetchCellPoints(coordinate, IP1, tolerance, d_min)
     #check where the boundaries are located (left(-1) or right(1), down(-1) or up(1))
     if D_xy_mean_total[0] > 0:
         horizontal_bound = 1
