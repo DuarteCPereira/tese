@@ -324,18 +324,18 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
                 give_instruction("G0 X1 F100")
                 
-                time.sleep(7)
+                time.sleep(9)
                 give_instruction("G0 Y1 F100")
 
                 #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
                 time.sleep(5)
 
-                initial_estimate = np.array([10, 2])
+                initial_estimate = np.array([52, 25])
                 instruction = np.copy(initial_estimate)
 
 
                 while a:
-                    give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F100")
+                    give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600")
                     try:
                         while a:
                             #receber a distância que deve andar a cabeça
@@ -611,7 +611,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 username = "PC"
 HEADER_LENGTH = 10
 #IP = "127.0.0.1"
-IP = '10.16.232.63'
+IP = '10.16.233.124'
 PORT = 1234
 
 printer = Printer.create_printer_standard_from_parts_dimensions(length_x=380, length_y=400, length_z=50)
@@ -650,8 +650,8 @@ h2.connect_to_serial(h2.serial_port)
 h2.flush_start_messages()
 message = h2.read_serial_message(show=False)
 #give_instruction("G28")
-#message = give_instruction("G28")
-#give_instruction("G0 Z10 F100")
+message = give_instruction("G28")
+give_instruction("G0 Z10 F100")
 test_client_func(username, HEADER_LENGTH, IP, PORT)
 
 #if __name__ == "__main__":
