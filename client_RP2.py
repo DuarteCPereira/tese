@@ -162,7 +162,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     d = True
                     while a:
                         #Enviar instruções para o raspberry processar
-                        dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test.mp4')
+                        dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4')
                         print(dx)
                         #d = np.asarray([1, 2])
                         print(sidePx, "sidePx para o mov em xx")
@@ -170,7 +170,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     
                     while b:
                         #Enviar instruções para o raspberry processar
-                        dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test.mp4')
+                        dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4')
                         print(dy)
                         print(sidePx, "sidePx para o mov em yy")
                         b = False
@@ -186,7 +186,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         videoRecord.recordPic("MarkerDistance.png")
 
 
-                        d_xy_px = detectMarker.detectMark("MarkerDistance.png")
+                        d_xy_px = detectMarker.detectMark("MarkerDistance.png", "DICT_5X5_100")
                         #Converter a distância em pixeis para mm
                         d_xy_mm = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
                         
@@ -220,7 +220,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 def main():
     username = "RP2"
     HEADER_LENGTH = 10
-    IP = '10.16.232.63'
+    IP = '10.16.233.124'
     PORT = 1234
     message = test_client_func(username, HEADER_LENGTH, IP, PORT)
     print(message)

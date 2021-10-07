@@ -190,5 +190,5 @@ def detectmarkVid(type):
 	vs.stop()
 
 #detectmarkVid("DICT_5X5_100")
-d_xy_px = detectMark("teste.jpg", "DICT_5X5_100")
+#d_xy_px = detectMark("teste.jpg", "DICT_5X5_100")
 #print(d_xy_px)
