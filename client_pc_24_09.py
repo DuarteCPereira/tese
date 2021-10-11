@@ -8,44 +8,80 @@ import time
 import pickle
 import numpy as np
 
-def give_instruction(string):
-    h2.add_instruction_to_queue(string+"\n")
-    h2.send_next_instruction(show=True)
-    message = h2.read_serial_message(show=True)
-    while True:
-        if "ok" in message:
-            break
-        else:
-            time.sleep(0.1)
-            message = h2.read_serial_message(show=True)
+def give_instruction(string, head_number):
+    if head_number == 1:
+        h2.add_instruction_to_queue(string+"\n")
+        h2.send_next_instruction(show=True)
+        message = h2.read_serial_message(show=True)
+        while True:
+            if "ok" in message:
+                break
+            else:
+                time.sleep(0.1)
+                message = h2.read_serial_message(show=True)
+    if head_number == 2:
+        h1.add_instruction_to_queue(string+"\n")
+        h1.send_next_instruction(show=True)
+        message = h1.read_serial_message(show=True)
+        while True:
+            if "ok" in message:
+                break
+            else:
+                time.sleep(0.1)
+                message = h1.read_serial_message(show=True)
     return None
 
-def return_steps_x():
-    h2.add_instruction_to_queue("M92")
-    h2.send_next_instruction(show=True)
-    while True:
-        message = h2.read_serial_message(show=True)
-        if "M92" in message:
-            index_x = message.find("X")
-            steps_x = float(message[index_x+1:index_x+7])
-            print(steps_x)
-        elif "ok" in message:
-            break
+def return_steps_x(head_number):
+    if head_number == 1:
+        h2.add_instruction_to_queue("M92")
+        h2.send_next_instruction(show=True)
+        while True:
+            message = h2.read_serial_message(show=True)
+            if "M92" in message:
+                index_x = message.find("X")
+                steps_x = float(message[index_x+1:index_x+7])
+                print(steps_x)
+            elif "ok" in message:
+                break
+    if head_number == 2:
+        h1.add_instruction_to_queue("M92")
+        h1.send_next_instruction(show=True)
+        while True:
+            message = h1.read_serial_message(show=True)
+            if "M92" in message:
+                index_x = message.find("X")
+                steps_x = float(message[index_x+1:index_x+7])
+                print(steps_x)
+            elif "ok" in message:
+                break
     print(message)
     return steps_x
 
-def return_steps_y():
-    h2.add_instruction_to_queue("M92")
-    h2.send_next_instruction(show=True)
-    while True:
-        message = h2.read_serial_message(show=True)
-        if "M92" in message:
-            index_y = message.find("Y")
-            steps_y = float(message[index_y+1:index_y+7])
-            print(steps_y)
-        elif "ok" in message:
-            break
-    print(message)
+def return_steps_y(head_number):
+    if head_number == 1:
+        h2.add_instruction_to_queue("M92")
+        h2.send_next_instruction(show=True)
+        while True:
+            message = h2.read_serial_message(show=True)
+            if "M92" in message:
+                index_y = message.find("Y")
+                steps_y = float(message[index_y+1:index_y+7])
+                print(steps_y)
+            elif "ok" in message:
+                break
+        print(message)
+    if head_number == 2:
+        h1.add_instruction_to_queue("M92")
+        h1.send_next_instruction(show=True)
+        while True:
+            message = h1.read_serial_message(show=True)
+            if "M92" in message:
+                index_y = message.find("Y")
+                steps_y = float(message[index_y+1:index_y+7])
+                print(steps_y)
+            elif "ok" in message:
+                break
+        print(message)
     return steps_y
 
 def test_client_func(username, HEADER_LENGTH, IP, PORT):
@@ -84,10 +120,10 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
             client_socket.send(message_header+message)
             #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-            give_instruction("G91")
+            give_instruction("G91", 1)
             time.sleep(5)
 
-            give_instruction("G0 X10 F100")
+            give_instruction("G0 X10 F100", 1)
 
             while a:
                 try:
@@ -137,16 +173,16 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 time.sleep(1)
 
                 #Send A to RP
-                A = return_steps_x()
+                A = return_steps_x(1)
                 message = f"{A}"
                 message = message.encode("utf-8")
                 message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                 client_socket.send(message_header + message)
 
                 #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-                give_instruction("G91")
+                give_instruction("G91", 1)
                 time.sleep(5)
-                give_instruction("G0 X10 F100")
+                give_instruction("G0 X10 F100", 1)
 
 
                 while a:
@@ -175,9 +211,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                             elif abs(D - A) > 0:
                                 print("Parametro nao esta afinado")
                                 print("Novo parametro será atualizado")
-                                give_instruction(f"M92 X{D}")
-                                give_instruction(f"M500")
-                                give_instruction(f"M501")
+                                give_instruction(f"M92 X{D}", 1)
+                                give_instruction(f"M500", 1)
+                                give_instruction(f"M501", 1)
                                 a = False
 
 
@@ -206,16 +242,16 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 time.sleep(1)
 
                 #Send A to RP
-                A = return_steps_y()
+                A = return_steps_y(1)
                 message = f"{A}"
                 message = message.encode("utf-8")
                 message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                 client_socket.send(message_header + message)
 
                 #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-                give_instruction("G91")
+                give_instruction("G91", 1)
                 time.sleep(5)
-                give_instruction("G0 Y10 F100")
+                give_instruction("G0 Y10 F100", 1)
 
 
                 while a:
@@ -244,9 +280,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                             elif abs(D - A) > 0.5:
                                 print("Parametro nao esta afinado")
                                 print("Novo parametro será atualizado")
-                                give_instruction(f"M92 Y{D}")
-                                give_instruction(f"M500")
-                                give_instruction(f"M501")
+                                give_instruction(f"M92 Y{D}", 1)
+                                give_instruction(f"M500", 1)
+                                give_instruction(f"M501", 1)
                                 a = False
 
 
@@ -268,13 +304,13 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
             client_socket.send(message_header+message)
             #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-            give_instruction("G91")
+            give_instruction("G91", 1)
             time.sleep(5)
 
-            give_instruction("G0 X10 F100")
+            give_instruction("G0 X10 F100", 1)
             
             time.sleep(20)
-            give_instruction("G0 Y10 F100")
+            give_instruction("G0 Y10 F100", 1)
 
             a = True
             while a:
@@ -322,10 +358,10 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 client_socket.send(message_header+message)
                 time.sleep(1)
 
-                give_instruction("G0 X1 F100")
+                give_instruction("G0 X1 F100", 1)
                 
                 time.sleep(9)
-                give_instruction("G0 Y1 F100")
+                give_instruction("G0 Y1 F100", 1)
 
                 #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
                 time.sleep(5)
@@ -335,7 +371,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
 
                 while a:
-                    give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600")
+                    
                     try:
                         while a:
                             #receber a distância que deve andar a cabeça
@@ -352,7 +388,8 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                             message = client_socket.recv(message_length).decode("utf-8")
                             d = pickle.loads(message)
                             if d[0] != 0 and d[1] != 0:
-                                instruction +=d
+                                instruction += d
+                                give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
                             else:
                                 a = False
 
@@ -378,10 +415,10 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
             client_socket.send(message_header+message)
             #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-            give_instruction("G91")
+            give_instruction("G91", 1)
             time.sleep(5)
 
-            give_instruction("G0 X10 F100")
+            give_instruction("G0 X10 F100", 1)
 
             while a:
                 try:
@@ -431,16 +468,16 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 time.sleep(1)
 
                 #Send A to RP
-                A = return_steps_x()
+                A = return_steps_x(1)
                 message = f"{A}"
                 message = message.encode("utf-8")
                 message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                 client_socket.send(message_header + message)
 
                 #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-                give_instruction("G91")
+                give_instruction("G91", 1)
                 time.sleep(5)
-                give_instruction("G0 X10 F100")
+                give_instruction("G0 X10 F100", 1)
 
 
                 while a:
@@ -469,9 +506,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                             elif abs(D - A) > 0:
                                 print("Parametro nao esta afinado")
                                 print("Novo parametro será atualizado")
-                                give_instruction(f"M92 X{D}")
-                                give_instruction(f"M500")
-                                give_instruction(f"M501")
+                                give_instruction(f"M92 X{D}", 1)
+                                give_instruction(f"M500", 1)
+                                give_instruction(f"M501", 1)
                                 a = False
 
 
@@ -500,16 +537,16 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 time.sleep(1)
 
                 #Send A to RP
-                A = return_steps_y()
+                A = return_steps_y(1)
                 message = f"{A}"
                 message = message.encode("utf-8")
                 message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                 client_socket.send(message_header + message)
 
                 #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-                give_instruction("G91")
+                give_instruction("G91", 1)
                 time.sleep(5)
-                give_instruction("G0 Y10 F100")
+                give_instruction("G0 Y10 F100", 1)
 
 
                 while a:
@@ -538,9 +575,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                             elif abs(D - A) > 0.5:
                                 print("Parametro nao esta afinado")
                                 print("Novo parametro será atualizado")
-                                give_instruction(f"M92 Y{D}")
-                                give_instruction(f"M500")
-                                give_instruction(f"M501")
+                                give_instruction(f"M92 Y{D}", 1)
+                                give_instruction(f"M500", 1)
+                                give_instruction(f"M501", 1)
                                 a = False
 
 
@@ -562,13 +599,13 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
             client_socket.send(message_header+message)
             #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
-            give_instruction("G91")
+            give_instruction("G91", 1)
             time.sleep(5)
 
-            give_instruction("G0 X10 F100")
+            give_instruction("G0 X10 F100", 1)
             
             time.sleep(20)
-            give_instruction("G0 Y10 F100")
+            give_instruction("G0 Y10 F100", 1)
 
             a = True
             while a:
@@ -650,8 +687,8 @@ h2.connect_to_serial(h2.serial_port)
 h2.flush_start_messages()
 message = h2.read_serial_message(show=False)
 #give_instruction("G28")
-message = give_instruction("G28")
-give_instruction("G0 Z10 F100")
+message = give_instruction("G28", 1)
+give_instruction("G0 Z10 F100", 1)
 test_client_func(username, HEADER_LENGTH, IP, PORT)
 
 #if __name__ == "__main__":

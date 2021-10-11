@@ -6,7 +6,11 @@ import errno
 import sys
 import time
 import pickle
+import videoRecord
+import detectMarker
 
+from videoRecord import recordVid
+#12
 
 def test_client_func(username, HEADER_LENGTH, IP, PORT):
     #my_username = input("Username: ")
@@ -18,7 +22,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     username = my_username.encode("utf-8")
     username_header = f"{len(username):<{HEADER_LENGTH}}".encode("utf-8")
     client_socket.send(username_header + username)
-
+    celLen = 2
 
     #Esperar por uma mensage com o processo
     while True:
@@ -40,7 +44,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
                 if message == f"Proc1_1":
                     #Enviar instruções para o raspberry processar
-                    d, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                    d, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
                     #d = np.asarray([1, 2])
                     m_pickle = pickle.dumps(d)
 
@@ -133,14 +137,14 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     b = True
                     while a:
                         #Enviar instruções para o raspberry processar
-                        dx, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                        dx, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
                         print(dx)
                         #d = np.asarray([1, 2])
                         a = False
                     
                     while b:
                         #Enviar instruções para o raspberry processar
-                        dy, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                        dy, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
                         print(dy)
                         b = False
                     
@@ -150,7 +154,54 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     message = message.encode("utf-8")
                     message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                     client_socket.send(message_header + message)
-                
+                    
+                if message == "teste":
+                    a = True
+                    b = True
+                    c = True
+                    d = True
+                    while a:
+                        #Enviar instruções para o raspberry processar
+                        dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4')
+                        print(dx)
+                        #d = np.asarray([1, 2])
+                        print(sidePx, "sidePx para o mov em xx")
+                        a = False
+                    
+                    while b:
+                        #Enviar instruções para o raspberry processar
+                        dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4')
+                        print(dy)
+                        print(sidePx, "sidePx para o mov em yy")
+                        b = False
+                    
+                    #Saber a quantos pixeis corresponde o movimento de 1mm em ambas as direções (xx e yy) 
+                    dpx_mm = camNozzle.MmToPx(dx, dy, sidePx, celLen)
+                        
+                    while c:
+
+                        #Perguntar ao utilizador se a camera já se encontra em cima do QR
+                        input("Pressione um tecla para continuar.")
+                        #Enviar instruções para o raspberry detetar o qr code
+                        videoRecord.recordPic("MarkerDistance.png")
+
+
+                        d_xy_px = detectMarker.detectMark("MarkerDistance.png", "DICT_5X5_100")
+                        #Converter a distância em pixeis para mm
+                        d_xy_mm = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
+                        
+                        if d_xy_mm[0] <= 0.1 and d_xy_mm[1] <= 0.1:
+                            d_xy_mm[0] = 0
+                            d_xy_mm[1] = 0
+                            c = False
+
+
+                        #Recolher distẫncia em px para o qr code
+                        #Enviar para o pc a nova instrução a dar em mm
+                        
+                        m_pickle = pickle.dumps(d_xy_mm)
+                        m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+                        client_socket.send(m_pickle_header + m_pickle)
           
 
         except IOError as e:
@@ -169,7 +220,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 def main():
     username = "RP1"
     HEADER_LENGTH = 10
-    IP = '10.16.232.63'
+    IP = '10.16.233.124'
     PORT = 1234
     message = test_client_func(username, HEADER_LENGTH, IP, PORT)
     print(message)

@@ -177,7 +177,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     
                     #Saber a quantos pixeis corresponde o movimento de 1mm em ambas as direções (xx e yy) 
                     dpx_mm = camNozzle.MmToPx(dx, dy, sidePx, celLen)
-                        
+                    
                     while c:
 
                         #Perguntar ao utilizador se a camera já se encontra em cima do QR
