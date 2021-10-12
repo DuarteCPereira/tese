@@ -360,15 +360,15 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
                 give_instruction("G0 X1 F100", 1)
                 
-                time.sleep(9)
+                time.sleep(10)
                 give_instruction("G0 Y1 F100", 1)
 
                 #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
-                time.sleep(5)
+                time.sleep(9)
 
-                initial_estimate = np.array([52, 25])
+                initial_estimate = np.array([float(52), float(25)])
                 instruction = np.copy(initial_estimate)
-
+                give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
 
                 while a:
                     
@@ -385,8 +385,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
                             message_header = client_socket.recv(HEADER_LENGTH)
                             message_length = int(message_header.decode("utf-8").strip())
-                            message = client_socket.recv(message_length).decode("utf-8")
+                            message = client_socket.recv(message_length)
                             d = pickle.loads(message)
+
                             if d[0] != 0 and d[1] != 0:
                                 instruction += d
                                 give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
