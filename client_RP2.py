@@ -189,6 +189,8 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         d_xy_px = detectMarker.detectMark("MarkerDistance.png", "DICT_5X5_100")
                         #Converter a distância em pixeis para mm
                         d_xy_mm = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
+                        d_xy_mm[0] = d_xy_mm[0]*-1
+                        print(d_xy_mm)
                         
                         if d_xy_mm[0] <= 0.1 and d_xy_mm[1] <= 0.1:
                             d_xy_mm[0] = 0
@@ -200,8 +202,10 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         #Enviar para o pc a nova instrução a dar em mm
                         
                         m_pickle = pickle.dumps(d_xy_mm)
+                        time.sleep(0.5)
                         m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
                         client_socket.send(m_pickle_header + m_pickle)
+                        
           
 
         except IOError as e:

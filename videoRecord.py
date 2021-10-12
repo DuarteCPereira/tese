@@ -37,4 +37,5 @@ def recordPic(name):
     sleep(5)
     camera.capture(name)
     camera.stop_preview()
+    camera.close()
 #recordVid(20, "Y_mov_skew.mp4")

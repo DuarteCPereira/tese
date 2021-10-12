@@ -3,6 +3,7 @@ import time
 import imutils
 from imutils.video import VideoStream
 import numpy as np
+import vidProc
 
 def detectMark(image, type):
 
@@ -94,9 +95,7 @@ def detectMark(image, type):
 	image = cv2.arrowedLine(image, center_coordinates, (cX, cY), (0, 255, 255), 2) 
 	
 	# show the output image
-	cv2.imshow("Image", image)
-	cv2.waitKey(0)
-	cv2.destroyWindow("Image")
+	vidProc.show_wait_destroy("qr", image)
 
 	#Vetor do centro do frame ate ao marker em px
 	d_xy_px = (cX, cY) - center_coordinates
