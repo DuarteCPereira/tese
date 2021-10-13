@@ -358,6 +358,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 client_socket.send(message_header+message)
                 time.sleep(1)
 
+                give_instruction("G90", 1)
                 give_instruction("G0 X1 F100", 1)
                 
                 time.sleep(10)
@@ -393,6 +394,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                                 give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
                             else:
                                 a = False
+                                c = False
 
 
 
@@ -407,6 +409,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         sys.exit()
                         pass
 
+            print(f"The vector between the origin and the QR code is: {instruction}.")
         
         """Cabeça 2"""
         #Medir distância
@@ -649,7 +652,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 username = "PC"
 HEADER_LENGTH = 10
 #IP = "127.0.0.1"
-IP = '10.16.233.124'
+IP = '10.16.232.63'
 PORT = 1234
 
 printer = Printer.create_printer_standard_from_parts_dimensions(length_x=380, length_y=400, length_z=50)
