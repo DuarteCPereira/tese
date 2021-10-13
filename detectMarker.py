@@ -37,7 +37,7 @@ def detectMark(image, type):
 	print("[INFO] loading image...")
 	image = cv2.imread(image)
 	#Retirar depois o resize da imagem
-	image = imutils.resize(image, width=600)
+	#image = imutils.resize(image, width=600)
 
 	# load the ArUCo dictionary, grab the ArUCo parameters, and detect
 	# the markers
