@@ -189,10 +189,10 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         d_xy_px = detectMarker.detectMark("MarkerDistance.png", "DICT_5X5_100")
                         #Converter a distância em pixeis para mm
                         d_xy_mm = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
-                        d_xy_mm[0] = d_xy_mm[0]*-1
+                        d_xy_mm[0] = -d_xy_mm[0]
                         print(d_xy_mm)
                         
-                        if d_xy_mm[0] <= 0.1 and d_xy_mm[1] <= 0.1:
+                        if abs(d_xy_mm[0]) <= 0.1 and abs(d_xy_mm[1]) <= 0.1:
                             d_xy_mm[0] = 0
                             d_xy_mm[1] = 0
                             c = False
@@ -224,7 +224,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 def main():
     username = "RP2"
     HEADER_LENGTH = 10
-    IP = '10.16.233.124'
+    IP = '10.16.232.63'
     PORT = 1234
     message = test_client_func(username, HEADER_LENGTH, IP, PORT)
     print(message)
