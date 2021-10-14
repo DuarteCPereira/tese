@@ -8,6 +8,7 @@ import time
 import pickle
 import videoRecord
 import detectMarker
+import vidProc
 
 from videoRecord import recordVid
 #12
@@ -202,6 +203,57 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         #Enviar para o pc a nova instrução a dar em mm
                         
                         m_pickle = pickle.dumps(d_xy_mm)
+                        time.sleep(0.5)
+                        m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+                        client_socket.send(m_pickle_header + m_pickle)
+
+                if message == "testeNozzle":
+                    a = True
+                    b = True
+                    c = True
+                    d = True
+                    while a:
+                        #Enviar instruções para o raspberry processar
+                        dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4')
+                        print(dx)
+                        #d = np.asarray([1, 2])
+                        print(sidePx, "sidePx para o mov em xx")
+                        a = False
+                    
+                    while b:
+                        #Enviar instruções para o raspberry processar
+                        dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4')
+                        print(dy)
+                        print(sidePx, "sidePx para o mov em yy")
+                        b = False
+                    
+                    #Saber a quantos pixeis corresponde o movimento de 1mm em ambas as direções (xx e yy) 
+                    dpx_mm = camNozzle.MmToPx(dx, dy, sidePx, celLen)
+                    
+                    while c:
+
+                        #Perguntar ao utilizador se a camera já se encontra em cima do QR
+                        input("Pressione um tecla para continuar.")
+                        #Enviar instruções para o raspberry detetar o qr code
+                        videoRecord.recordPic("NozzleCam.png")
+
+
+                        NozzleCam = vidProc.findCircles("MarkerDistance.png", "DICT_5X5_100")
+                        #Converter a distância em pixeis para mm
+                        NozzleCam = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
+                        NozzleCam[0] = -NozzleCam[0]
+                        print(NozzleCam)
+                        
+                        if abs(NozzleCam[0]) <= 0.1 and abs(NozzleCam[1]) <= 0.1:
+                            NozzleCam[0] = 0
+                            NozzleCam[1] = 0
+                            c = False
+
+
+                        #Recolher distẫncia em px para o qr code
+                        #Enviar para o pc a nova instrução a dar em mm
+                        
+                        m_pickle = pickle.dumps(NozzleCam)
                         time.sleep(0.5)
                         m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
                         client_socket.send(m_pickle_header + m_pickle)

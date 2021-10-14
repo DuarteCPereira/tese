@@ -137,6 +137,7 @@ def findCircles(img):
     # Convert BGR to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
+    '''
     #define range of blue color in hsv
     lower_blue = np.array([110,50,50])
     upper_blue = np.array([130,255,255])
@@ -155,9 +156,9 @@ def findCircles(img):
     mask_red = cv2.inRange(hsv, lower1, upper1)
 
     #show_wait_destroy('123', mask_red)
-    
-
     '''
+
+
     # lower boundary RED color range values; Hue (0 - 10)
     lower1 = np.array([0, 100, 20])
     upper1 = np.array([10, 255, 255])
@@ -172,20 +173,37 @@ def findCircles(img):
     full_mask = lower_mask + upper_mask;
     
     result = cv2.bitwise_and(img, img, mask=full_mask)
-    show_wait_destroy('teste', full_mask)
-    '''
+    show_wait_destroy('teste', result)
 
-    circles = cv2.HoughCircles(cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT,3,1000, param1=50,param2=100,minRadius=50,maxRadius=100)
+    
+    result1 = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
+    circles = cv2.HoughCircles(cv2.cvtColor(result1, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT,3,1000, param1=50,param2=100,minRadius=50,maxRadius=100)
     if circles is not None:
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
             # draw the outer circle
             cv2.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
-            cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+            cv2.circle(cimg,(i[0],i[1]),2,(0,255,0),3)
+
+    circle_center = np.array([i[0], i[1]])
+    midFrame = np.flip(np.asarray(cimg.shape[:2])/2)
+    radius = int(cimg.shape[1]*0.01)
+    #color in BGR
+    color = (255, 0, 0)
+    # Line thickness of -1 px (-1 fills the circle)
+    thickness = -1
+
+    #coordinates correspond to the center of the image
+    center_coordinates = midFrame.astype(int)
+    cimg = cv2.circle(cimg, tuple(center_coordinates), radius, color, thickness)
+	#Draw arrow
+    cimg = cv2.arrowedLine(cimg, center_coordinates, circle_center, (0, 255, 255), 2)
+
+    NozzleCamera = circle_center - center_coordinates
     
-    #show_wait_destroy('cimg', cimg)
-    return(cimg, i[:2])
+    show_wait_destroy('cimg', cimg)
+    return NozzleCamera
 
 def four_point_transform(image, rect, midFrame):
     # obtain a consistent order of the points and unpack them
@@ -260,5 +278,5 @@ def cropImage(img, x, w, y, h):
     return img[y:y+h, x:x+h]
 
 
-#img=cv2.imread('imagem_teste_red.jpg')
-#findCircles(img)
+img=cv2.imread('teste_circle2.png')
+findCircles(img)

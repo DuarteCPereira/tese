@@ -109,6 +109,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
         print(f"3 - Calibrate steps/mm on yy direction.")
         print(f"4 - Apply skew compensation.")
         print(f"teste_relativo - Teste da calibração relativa.")
+        print(f"testeNozzle - Encontrar o vector nozzle-camera.")
         process = input(f"{my_username} > ")
 
         #Processar as ações necessárias para cada processo
@@ -353,6 +354,69 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             while c:
                 a = True
                 message = f"teste"
+                message = message.encode("utf-8")
+                message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
+                client_socket.send(message_header+message)
+                time.sleep(1)
+
+                give_instruction("G90", 1)
+                give_instruction("G0 X1 F100", 1)
+                
+                time.sleep(10)
+                give_instruction("G0 Y1 F100", 1)
+
+                #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
+                time.sleep(9)
+
+                initial_estimate = np.array([float(52), float(25)])
+                instruction = np.copy(initial_estimate)
+                give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+
+                while a:
+                    
+                    try:
+                        while a:
+                            #receber a distância que deve andar a cabeça
+                            username_header = client_socket.recv(HEADER_LENGTH)
+                            if not len(username_header):
+                                print("connection closed by the server")
+                                sys.exit()
+
+                            username_length = int(username_header.decode("utf-8").strip())
+                            username = client_socket.recv(username_length).decode("utf-8")
+
+                            message_header = client_socket.recv(HEADER_LENGTH)
+                            message_length = int(message_header.decode("utf-8").strip())
+                            message = client_socket.recv(message_length)
+                            d = pickle.loads(message)
+
+                            if d[0] != 0 and d[1] != 0:
+                                instruction += d
+                                give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+                            else:
+                                a = False
+                                c = False
+
+
+
+                    except IOError as e:
+                        if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                            print('Reading error', str(e))
+                            sys.exit()
+                        continue
+
+                    except Exception as e:
+                        print('General error', str(e))
+                        sys.exit()
+                        pass
+
+            print(f"The vector between the origin and the QR code is: {instruction}.")
+
+        if process == "testeNozzle":
+
+            while c:
+                a = True
+                message = f"testeNozzle"
                 message = message.encode("utf-8")
                 message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
                 client_socket.send(message_header+message)
