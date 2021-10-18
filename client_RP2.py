@@ -13,6 +13,49 @@ import vidProc
 from videoRecord import recordVid
 #12
 
+def receive_message(HEADER_LENGTH, client_socket):
+    a = True
+    while a:
+        try:
+            while a:
+                #receive things
+                username_header = client_socket.recv(HEADER_LENGTH)
+                if not len(username_header):
+                    print("connection closed by the server")
+                    sys.exit()
+
+                username_length = int(username_header.decode("utf-8").strip())
+                username = client_socket.recv(username_length).decode("utf-8")
+
+                message_header = client_socket.recv(HEADER_LENGTH)
+                message_length = int(message_header.decode("utf-8").strip())
+                #message = client_socket.recv(message_length).decode("utf-8")
+                message = client_socket.recv(message_length)
+
+                d = pickle.loads(message)
+                a = False
+
+
+        except IOError as e:
+            if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                print('Reading error', str(e))
+                sys.exit()
+            continue
+        
+        except Exception as e:
+            print('General error', str(e))
+            sys.exit()
+            pass
+    
+    return d
+
+def send_message(HEADER_LENGTH, message, client_socket):
+
+    message_pickle = pickle.dumps(message)
+    #message = message.encode("utf-8")
+    message_header = f"{len(message_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+    client_socket.send(message_header+message_pickle)
+
 def test_client_func(username, HEADER_LENGTH, IP, PORT):
     #my_username = input("Username: ")
     my_username = username
@@ -26,6 +69,18 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     celLen = 2
 
     #Esperar por uma mensage com o processo
+    proc = receive_message(HEADER_LENGTH, client_socket)
+    if proc == f"Proc1_2":
+        #Enviar instruções para o raspberry processar
+        d, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+        #d = np.asarray([1, 2])
+        m_pickle = pickle.dumps(d)
+
+        time.sleep(2)
+        m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+        client_socket.send(m_pickle_header + m_pickle)
+
+    '''
     while True:
         
         try:
@@ -272,6 +327,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             sys.exit()
             pass
     return message_received
+    '''
 
 def main():
     username = "RP2"
