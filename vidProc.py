@@ -278,5 +278,5 @@ def cropImage(img, x, w, y, h):
     return img[y:y+h, x:x+h]
 
 
-img=cv2.imread('teste_circle2.png')
-findCircles(img)
+#img=cv2.imread('teste_circle2.png')
+#findCircles(img)
