@@ -493,48 +493,19 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
         #Medir distância
         if process == "1_RP2":
             message = f"Proc1_2"
-            message = message.encode("utf-8")
-            message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
-            client_socket.send(message_header+message)
+            send_message(HEADER_LENGTH, message, client_socket)
             #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
             give_instruction("G91", 1)
             time.sleep(5)
 
             give_instruction("G0 X10 F100", 1)
 
-            while a:
-                try:
-                    while a:
-                        #receive things
-                        username_header = client_socket.recv(HEADER_LENGTH)
-                        if not len(username_header):
-                            print("connection closed by the server")
-                            sys.exit()
-
-                        username_length = int(username_header.decode("utf-8").strip())
-                        username = client_socket.recv(username_length).decode("utf-8")
-
-                        message_header = client_socket.recv(HEADER_LENGTH)
-                        message_length = int(message_header.decode("utf-8").strip())
-                        #message = client_socket.recv(message_length).decode("utf-8")
-                        message = client_socket.recv(message_length)
-
-                        d = pickle.loads(message)
-                        print(f"{username} > {d}")
-                        print(f"O vector recebido foi: {d} ")
-                        if message_length > 0:
-                            a = False
-
-                except IOError as e:
-                    if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-                        print('Reading error', str(e))
-                        sys.exit()
-                    continue
-
-                except Exception as e:
-                    print('General error', str(e))
-                    sys.exit()
-                    pass
+            d = receive_message(HEADER_LENGTH, client_socket)
+            d = pickle.loads(message)
+            print(f"{username} > {d}")
+            print(f"O vector recebido foi: {d} ")
+            if message_length > 0:
+                a = False
 
         #Calibrar E-Steps
         if process == "2_RP2":
