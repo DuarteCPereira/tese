@@ -59,7 +59,7 @@ def movePrintCore(time, name):
                 #print(cel_cord_init)
                 #vidProc.show_wait_destroy('teste', cimg)
                 #vidProc.show_wait_destroy('teste', img)
-                #cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
+                cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             
             #lines,cimg=vidProc.binaryGridDetection(frame)
             #vidProc.show_wait_destroy('posição do centro na celula',cimg)
@@ -77,7 +77,7 @@ def movePrintCore(time, name):
             #vidProc.show_wait_destroy("frame", cimg)
 
             #Descomentar caso seja para ver a imagem
-            #cv2.imshow('preview', cimg)
+            cv2.imshow('preview', cimg)
 
             #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
             
@@ -92,7 +92,7 @@ def movePrintCore(time, name):
         #print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
-    #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
+    cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
     n_rows_tg, n_cols_tg = grid_map.nRowsCols(totalGrid, cols*0.036)
     
     #MUDAR CENTERPOINT PARA PONTO REAL E NAO APROXIMAÇÃO
@@ -275,5 +275,5 @@ def getSkewCoefxy(dx, dy):
     #xytan = math.tan((math.pi/2)-angle)
     return angle, unit_vector_1, unit_vector_2
 
-#movePrintCore(10, '10mm_100mm_min_xx.mp4')
+#d, _, _, _, _, _, _ = movePrintCore(20, 'test.mp4')
 #nozzleCamProc()

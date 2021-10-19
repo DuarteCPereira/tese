@@ -81,7 +81,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
         client_socket.send(m_pickle_header + m_pickle)
 
     '''
-    while True:
+    while True: 
         
         try:
             while True:
