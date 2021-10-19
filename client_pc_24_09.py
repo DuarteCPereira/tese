@@ -140,7 +140,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     b =True
 
 
-    while b:
+    while True:
         a = True
         b = True
         c = True
@@ -496,22 +496,87 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             send_message(HEADER_LENGTH, message, client_socket)
             #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
             give_instruction("G91", 1)
-            time.sleep(5)
+            time.sleep(3)
 
-            give_instruction("G0 X10 F100", 1)
+            give_instruction("G0 Y10 F100", 1)
 
             d = receive_message(HEADER_LENGTH, client_socket)
-            d = pickle.loads(message)
+            #d = pickle.loads(message)
             print(f"{username} > {d}")
             print(f"O vector recebido foi: {d} ")
-            if message_length > 0:
-                a = False
+            a = False
 
         #Calibrar E-Steps
         if process == "2_RP2":
             #beforing calling this function, M503 and M83 must be sent to printer
             #Get A parameter from M503
+            while a:
+                b = True
+                message = f"Proc2_2"
+                send_message(HEADER_LENGTH, message, client_socket)
+                time.sleep(1)
 
+                #Send A to RP
+                A = return_steps_x(1)
+                message = A
+                send_message(HEADER_LENGTH, message, client_socket)
+
+                #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
+                give_instruction("G91", 1)
+                time.sleep(5)
+                give_instruction("G0 X10 F100", 1)
+
+                while b:
+                    D = receive_message(HEADER_LENGTH, client_socket)
+                    if abs(D - A) == 0:
+                        a = False
+                        b = False
+                        print(D)
+
+                    elif abs(D - A) > 0:
+                        print("Parametro nao esta afinado")
+                        print("Novo parametro será atualizado")
+                        give_instruction(f"M92 X{D}", 1)
+                        give_instruction(f"M500", 1)
+                        give_instruction(f"M501", 1)
+                        b = False
+
+        #Calibrar E-Steps
+        if process == "3_RP2":
+            #beforing calling this function, M503 and M83 must be sent to printer
+            #Get A parameter from M503
+            while a:
+                b = True
+                message = f"Proc3_2"
+                send_message(HEADER_LENGTH, message, client_socket)
+                time.sleep(1)
+
+                #Send A to RP
+                A = return_steps_y(1)
+                message = A
+                send_message(HEADER_LENGTH, message, client_socket)
+
+                #Esperar 5 segundos para o RP receber a ordem de começar a gravar e mandar a máquina mover
+                give_instruction("G91", 1)
+                time.sleep(5)
+                give_instruction("G0 Y10 F100", 1)
+
+                while b:
+                    D = receive_message(HEADER_LENGTH, client_socket)
+                    if abs(D - A) == 0:
+                        a = False
+                        b = False
+                        print(D)
+
+                    elif abs(D - A) > 0:
+                        print("Parametro nao esta afinado")
+                        print("Novo parametro será atualizado")
+                        give_instruction(f"M92 Y{D}", 1)
+                        give_instruction(f"M500", 1)
+                        give_instruction(f"M501", 1)
+                        b = False
+
+            '''
             while c:
                 a = True
                 message = f"Proc2_2"
@@ -532,7 +597,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 time.sleep(5)
                 give_instruction("G0 X10 F100", 1)
 
-
+                
                 while a:
                     try:
                         while a:
@@ -552,7 +617,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
 
                             if abs(D - A) == 0:
-                                c = False
+                                    c = False
                                 a = False
                                 print(D)
                                 break
@@ -576,6 +641,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         print('General error', str(e))
                         sys.exit()
                         pass
+                       
 
         if process == "3_RP2":
             #beforing calling this function, M503 and M83 must be sent to printer
@@ -645,7 +711,14 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         print('General error', str(e))
                         sys.exit()
                         pass
-        
+                         '''
+
+        if process == "4_RP2":
+            message = f"Proc_4_2"
+            send_message(HEADER_LENGTH, message, client_socket)
+
+
+        '''
         if process == "4_RP2":
             message = f"Proc4_2"
             message = message.encode("utf-8")
@@ -695,6 +768,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     print('General error', str(e))
                     sys.exit()
                     pass
+        '''
     return None
 
 #def main():
