@@ -59,7 +59,7 @@ def movePrintCore(time, name):
                 #print(cel_cord_init)
                 #vidProc.show_wait_destroy('teste', cimg)
                 #vidProc.show_wait_destroy('teste', img)
-                cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
+                #cellSum.plot_a_b(intersectionPoints, midFrame, '+b', 'xr')
             
             #lines,cimg=vidProc.binaryGridDetection(frame)
             #vidProc.show_wait_destroy('posição do centro na celula',cimg)
@@ -77,7 +77,7 @@ def movePrintCore(time, name):
             #vidProc.show_wait_destroy("frame", cimg)
 
             #Descomentar caso seja para ver a imagem
-            cv2.imshow('preview', cimg)
+            #cv2.imshow('preview', cimg)
 
             #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
             
@@ -92,7 +92,7 @@ def movePrintCore(time, name):
         #print(fps_count)
     cv2.destroyAllWindows()
     cap.release()
-    cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
+    #cellSum.plotab(totalGrid, centerPoint, '+b', 'xr')
     n_rows_tg, n_cols_tg = grid_map.nRowsCols(totalGrid, cols*0.036)
     
     #MUDAR CENTERPOINT PARA PONTO REAL E NAO APROXIMAÇÃO
@@ -203,25 +203,20 @@ def steps_mm_cal_xx(A, time, name):
     #_, dx, _, _, _, _ = movePrintCore(time, name)
     
     #dx = 9.9
-    while True:
-        #Make the printer move 10 mm in x again
-        _, dx, _, _, _, _, _ = movePrintCore(time, name)
+    
+    #Make the printer move 10 mm in x again
+    _, dx, _, _, _, _, _ = movePrintCore(time, name)
 
-        dif = dx - 10
-        if abs(dif) < 0.05:
-            D = A
-            print("Steps are calibrated")
-            break
-        elif dif > 0:
-            D = 10*A/dx
-            print("X_Steps require calibration")
-        elif dif < 0:
-            D = dx*A/10
-            print("X_Steps require calibration")
-        A = D
-        break
+    dif = dx - 10
+    if abs(dif) < 0.05:
+        D = A
+        print("Steps are calibrated")
 
-        #new parameter D must be sent with GCode M92 and saved with M500
+    elif dif != 0:
+        D = 10*A/dx
+        print("Y_Steps require calibration")
+
+    print(D)
 
     return D
     
@@ -233,26 +228,20 @@ def steps_mm_cal_yy(A, time, name):
     #_, dx, _, _, _, _ = movePrintCore(time, name)
     
     #dx = 9.9
-    while True:
-        #Make the printer move 10 mm in x again
-        _, dy, _, _, _, _, _ = movePrintCore(time, name)
+    
+    #Make the printer move 10 mm in x again
+    _, dy, _, _, _, _, _ = movePrintCore(time, name)
 
-        dif = dy - 10
-        if abs(dif) < 0.05:
-            D = A
-            print("Steps are calibrated")
-            break
-        elif dif > 0:
-            D = 10*A/dy
-            print("Y_Steps require calibration")
-        elif dif < 0:
-            D = dy*A/10
-            print("Y_Steps require calibration")
-        A = D
-        break
+    dif = dy - 10
+    if abs(dif) < 0.05:
+        D = A
+        print("Steps are calibrated")
 
-        #new parameter D must be sent with GCode M92 and saved with M500
+    elif dif != 0:
+        D = 10*A/dy
+        print("Y_Steps require calibration")
 
+    print(D)
     return D
 
 def getSkewCoefxy(dx, dy):

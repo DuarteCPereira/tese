@@ -60,7 +60,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     #my_username = input("Username: ")
     my_username = username
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((IP, PORT))
+    client_socket.connect((IP, PORT)) 
     client_socket.setblocking(False)
 
     username = my_username.encode("utf-8")
@@ -69,16 +69,35 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     celLen = 2
 
     #Esperar por uma mensage com o processo
-    proc = receive_message(HEADER_LENGTH, client_socket)
-    if proc == f"Proc1_2":
-        #Enviar instruções para o raspberry processar
-        d, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
-        #d = np.asarray([1, 2])
-        m_pickle = pickle.dumps(d)
+    while True:
+        proc = receive_message(HEADER_LENGTH, client_socket)
+        if proc == f"Proc1_2":
+            #Enviar instruções para o raspberry processar
+            d, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+            #d = np.asarray([1, 2])
+            '''
+            m_pickle = pickle.dumps(d)
 
-        time.sleep(2)
-        m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
-        client_socket.send(m_pickle_header + m_pickle)
+            time.sleep(2)
+            m_pickle_header = f"{len(m_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+            client_socket.send(m_pickle_header + m_pickle)'''
+            send_message(HEADER_LENGTH, d, client_socket)
+            
+        if proc == f"Proc2_2":
+            A = receive_message(HEADER_LENGTH, client_socket)
+            D = camNozzle.steps_mm_cal_xx(A, 20, 'test.mp4')
+            #Send D to RP
+            #D = input(" > Insira o parametro D")
+            message = D
+            send_message(HEADER_LENGTH, message, client_socket)
+            
+        if proc == f"Proc3_2":
+            A = receive_message(HEADER_LENGTH, client_socket)
+            D = camNozzle.steps_mm_cal_yy(A, 20, 'test.mp4')
+            #Send D to RP
+            #D = input(" > Insira o parametro D")
+            message = D
+            send_message(HEADER_LENGTH, message, client_socket)
 
     '''
     while True: 
