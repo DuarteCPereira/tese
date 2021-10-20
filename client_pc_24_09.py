@@ -362,7 +362,36 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     print('General error', str(e))
                     sys.exit()
                     pass
+        
+        if process == "teste_relativo":
+            while a:
+                message = f"teste"
+                send_message(HEADER_LENGTH, message, client_socket)
+                time.sleep(1)
+                give_instruction("G90", 1)
+                give_instruction("G0 X1 F100", 1)
+                
+                time.sleep(10)
+                give_instruction("G0 Y1 F100", 1)
 
+                #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
+                time.sleep(9)
+
+                initial_estimate = np.array([float(52), float(25)])
+                instruction = np.copy(initial_estimate)
+                give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+
+                while c:
+                    d = receive_message(HEADER_LENGTH, client_socket)
+                    if d[0] != 0 and d[1] != 0:
+                        instruction += d
+                        give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+                    else:
+                        a = False
+                        c = False
+
+
+        '''
         if process == "teste_relativo":
 
             while c:
@@ -425,6 +454,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         pass
 
             print(f"The vector between the origin and the QR code is: {instruction}.")
+        '''
 
         if process == "testeNozzle":
 
@@ -716,6 +746,17 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
         if process == "4_RP2":
             message = f"Proc_4_2"
             send_message(HEADER_LENGTH, message, client_socket)
+            give_instruction("G91", 1)
+            time.sleep(5)
+            give_instruction("G0 X10 F100", 1)
+            
+            time.sleep(20)
+            give_instruction("G0 Y10 F100", 1)
+
+            #Receive Skew Angle
+            skew_angle = receive_message(HEADER_LENGTH, client_socket)
+            print(f"{username} > {skew_angle}")
+            print(f"O ângulo entre os vetores deslocamento xx e yy: {skew_angle} ")
 
 
         '''
