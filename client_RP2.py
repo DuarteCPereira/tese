@@ -87,8 +87,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             A = receive_message(HEADER_LENGTH, client_socket)
             D = camNozzle.steps_mm_cal_xx(A, 20, 'test.mp4')
             #Send D to RP
-            #D = input(" > Insira o parametro D")
-            message = D
+            #D = input(" > Insira o parametro D")                                       
             send_message(HEADER_LENGTH, message, client_socket)
             
         if proc == f"Proc3_2":
@@ -157,9 +156,10 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     d_xy_mm[1] = 0
                     c = False
 
-            #Recolher distẫncia em px para o qr code
-            #Enviar para o pc a nova instrução a dar em mm
-            send_message(HEADER_LENGTH, d_xy_mm, client_socket)
+                #Recolher distẫncia em px para o qr code
+                #Enviar para o pc a nova instrução a dar em mm
+                print(1)
+                send_message(HEADER_LENGTH, d_xy_mm, client_socket)
 
     '''
     while True: 
@@ -413,7 +413,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 def main():
     username = "RP2"
     HEADER_LENGTH = 10
-    IP = '10.16.232.63'
+    IP = '10.16.233.124'
     PORT = 1234
     message = test_client_func(username, HEADER_LENGTH, IP, PORT)
     print(message)
