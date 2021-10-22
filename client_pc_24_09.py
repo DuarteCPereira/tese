@@ -364,6 +364,8 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     pass
         
         if process == "teste_relativo":
+            a = True
+            c = True
             while a:
                 message = f"teste"
                 send_message(HEADER_LENGTH, message, client_socket)
@@ -377,7 +379,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
                 time.sleep(9)
 
-                initial_estimate = np.array([float(52), float(25)])
+                initial_estimate = np.array([float(55), float(28)])
                 instruction = np.copy(initial_estimate)
                 give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
 
@@ -455,7 +457,36 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 
             print(f"The vector between the origin and the QR code is: {instruction}.")
         '''
+        if process == "testeNozzle":
+            a = True
+            c = True
+            while a:
+                message = f"testeNozzle"
+                send_message(HEADER_LENGTH, message, client_socket)
+                time.sleep(1)
+                give_instruction("G90", 1)
+                give_instruction("G0 X1 F100", 1)
 
+                time.sleep(10)
+                give_instruction("G0 Y1 F100", 1)
+
+                #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
+                time.sleep(9)
+
+                initial_estimate = np.array([float(18), float(13)])
+                instruction = np.copy(initial_estimate)
+                give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+
+                while c:
+                    d = receive_message(HEADER_LENGTH, client_socket)
+                    if d[0] != 0 and d[1] != 0:
+                        instruction += d
+                        give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+                    else:
+                        a = False
+                        c = False
+
+        '''
         if process == "testeNozzle":
 
             while c:
@@ -516,8 +547,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         print('General error', str(e))
                         sys.exit()
                         pass
-
+            
             print(f"The vector between the origin and the QR code is: {instruction}.")
+        '''
         
         """Cabeça 2"""
         #Medir distância
@@ -528,7 +560,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             give_instruction("G91", 1)
             time.sleep(3)
 
-            give_instruction("G0 Y10 F100", 1)
+            give_instruction("G0 X10 F100", 1)
 
             d = receive_message(HEADER_LENGTH, client_socket)
             #d = pickle.loads(message)
@@ -816,7 +848,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
 username = "PC"
 HEADER_LENGTH = 10
 #IP = "127.0.0.1"
-IP = '10.16.232.63'
+IP = '10.16.233.124'
 PORT = 1234
 
 printer = Printer.create_printer_standard_from_parts_dimensions(length_x=380, length_y=400, length_z=50)
