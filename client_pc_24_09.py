@@ -485,7 +485,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                     else:
                         a = False
                         c = False
-
+            print(f"The vector between the Nozzle and the camera center is: {instruction}.")
         '''
         if process == "testeNozzle":
 
