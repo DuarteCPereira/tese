@@ -131,7 +131,8 @@ def findInitPoints(img1, midFrame):
     totalGrid = intersectionPoints
     return np.asarray(intersectionPoints), np.asarray(totalGrid), img
 
-def findCircles(img):
+def findCircles(path):
+    img = cv2.imread(path)
     cimg=np.copy(img)
     #show_wait_destroy('teste', cimg)
     # Convert BGR to HSV
@@ -159,6 +160,7 @@ def findCircles(img):
     '''
 
 
+    '''
     # lower boundary RED color range values; Hue (0 - 10)
     lower1 = np.array([0, 100, 20])
     upper1 = np.array([10, 255, 255])
@@ -171,13 +173,34 @@ def findCircles(img):
     upper_mask = cv2.inRange(hsv, lower2, upper2)
     
     full_mask = lower_mask + upper_mask;
+    '''
+    #img_blur = cv2.blur(src=img, ksize=(5, 5))
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
+    #blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    blurred = cv2.medianBlur(gray, 15)
+    show_wait_destroy("blurred", blurred)
+    #show_wait_destroy("blur", binary)
+
+    full_mask = cv2.inRange(hsv, (36, 25, 25), (70, 255,255))
     result = cv2.bitwise_and(img, img, mask=full_mask)
-    show_wait_destroy('teste', result)
+
+    _, binary = cv2.threshold(blurred, 120, 255, cv2.THRESH_BINARY_INV)
+    #binary = cv2.adaptiveThreshold(blurred,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 11, 2)
+    #horizontal = cv2.dilate(horizontal, horizontalStructure)
+    show_wait_destroy('teste', binary)
+
+    # Taking a matrix of size 5 as the kernel
+    kernel = np.ones((5,5), np.uint8)
+    closing = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+    img_dilation = cv2.dilate(binary, kernel, iterations=1)
+    show_wait_destroy('teste', img_dilation)
+    show_wait_destroy('teste', closing)
 
     
     result1 = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
-    circles = cv2.HoughCircles(cv2.cvtColor(result1, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT,3,1000, param1=50,param2=100,minRadius=50,maxRadius=100)
+    #circles = cv2.HoughCircles(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT,3,1000, param1=25,param2=200,minRadius=120,maxRadius=140)
+    circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT,3,1000, param1=25,param2=200,minRadius=120,maxRadius=140)
     if circles is not None:
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
@@ -278,5 +301,3 @@ def cropImage(img, x, w, y, h):
     return img[y:y+h, x:x+h]
 
 
-#img=cv2.imread('teste_circle2.png')
-#findCircles(img)
