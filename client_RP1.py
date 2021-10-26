@@ -12,6 +12,49 @@ import detectMarker
 from videoRecord import recordVid
 #12
 
+def receive_message(HEADER_LENGTH, client_socket):
+    a = True
+    while a:
+        try:
+            while a:
+                #receive things
+                username_header = client_socket.recv(HEADER_LENGTH)
+                if not len(username_header):
+                    print("connection closed by the server")
+                    sys.exit()
+
+                username_length = int(username_header.decode("utf-8").strip())
+                username = client_socket.recv(username_length).decode("utf-8")
+
+                message_header = client_socket.recv(HEADER_LENGTH)
+                message_length = int(message_header.decode("utf-8").strip())
+                #message = client_socket.recv(message_length).decode("utf-8")
+                message = client_socket.recv(message_length)
+
+                d = pickle.loads(message)
+                a = False
+
+
+        except IOError as e:
+            if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                print('Reading error', str(e))
+                sys.exit()
+            continue
+        
+        except Exception as e:
+            print('General error', str(e))
+            sys.exit()
+            pass
+    
+    return d
+
+def send_message(HEADER_LENGTH, message, client_socket):
+
+    message_pickle = pickle.dumps(message)
+    #message = message.encode("utf-8")
+    message_header = f"{len(message_pickle) :< {HEADER_LENGTH}}".encode("utf-8")
+    client_socket.send(message_header+message_pickle)
+
 def test_client_func(username, HEADER_LENGTH, IP, PORT):
     #my_username = input("Username: ")
     my_username = username
@@ -73,6 +116,8 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             skew_angle, _, _ = camNozzle.getSkewCoefxy(dx, dy)
             message = skew_angle
             send_message(HEADER_LENGTH, message, client_socket)
+        
+        '''
         if proc == "teste":
             a = True
             b = True
@@ -160,7 +205,9 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 #Enviar para o pc a nova instrução a dar em mm
                 print(1)
                 send_message(HEADER_LENGTH, d_xy_mm, client_socket)
-    
+
+        '''
+        
     '''
     #Esperar por uma mensage com o processo
     while True:
