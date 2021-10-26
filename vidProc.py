@@ -300,4 +300,3 @@ def rescaleFrame(frame, scale):
 def cropImage(img, x, w, y, h):
     return img[y:y+h, x:x+h]
 
-

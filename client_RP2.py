@@ -161,7 +161,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                 print(1)
                 send_message(HEADER_LENGTH, d_xy_mm, client_socket)
 
-        if proc == "teste":
+        if proc == "testeNozzle":
             a = True
             b = True
             c = True
