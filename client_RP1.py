@@ -10,6 +10,7 @@ import videoRecord
 import detectMarker
 
 from videoRecord import recordVid
+
 #12
 
 def receive_message(HEADER_LENGTH, client_socket):
@@ -116,6 +117,96 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             skew_angle, _, _ = camNozzle.getSkewCoefxy(dx, dy)
             message = skew_angle
             send_message(HEADER_LENGTH, message, client_socket)
+
+        if proc == "teste_1":
+            a = True
+            b = True
+            c = True
+            while a:
+                #Enviar instruções para o raspberry processar
+                dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4')
+                print(dx)
+                #d = np.asarray([1, 2])
+                print(sidePx, "sidePx para o mov em xx")
+                a = False
+            while b:
+                #Enviar instruções para o raspberry processar
+                dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4')
+                print(dy)
+                print(sidePx, "sidePx para o mov em yy")
+                b = False
+
+            #Saber a quantos pixeis corresponde o movimento de 1mm em ambas as direções (xx e yy) 
+            dpx_mm = camNozzle.MmToPx(dx, dy, sidePx, celLen)
+            
+            while c:
+                #Perguntar ao utilizador se a camera já se encontra em cima do QR
+                input("Pressione um tecla para continuar.")
+                #Enviar instruções para o raspberry detetar o qr code
+                videoRecord.recordPic("MarkerDistance.png")
+
+
+                d_xy_px = detectMarker.detectMark("MarkerDistance.png", "DICT_5X5_100")
+                #Converter a distância em pixeis para mm
+                d_xy_mm = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
+                d_xy_mm[0] = -d_xy_mm[0]
+                print(d_xy_mm)
+                
+                if abs(d_xy_mm[0]) <= 0.1 and abs(d_xy_mm[1]) <= 0.1:
+                    d_xy_mm[0] = 0
+                    d_xy_mm[1] = 0
+                    c = False
+
+                #Recolher distẫncia em px para o qr code
+                #Enviar para o pc a nova instrução a dar em mm
+                print(1)
+                #Append ao vector d_xy_mm a indicação de qual cabeça se esta a receber a informação
+                d_xy_mm = np.append(d_xy_mm, 2)
+                send_message(HEADER_LENGTH, d_xy_mm, client_socket)
+
+        if proc == "testeNozzle":
+            a = True
+            b = True
+            c = True
+            while a:
+                #Enviar instruções para o raspberry processar
+                dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4')
+                print(dx)
+                #d = np.asarray([1, 2])
+                print(sidePx, "sidePx para o mov em xx")
+                a = False
+            while b:
+                #Enviar instruções para o raspberry processar
+                dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4')
+                print(dy)
+                print(sidePx, "sidePx para o mov em yy")
+                b = False
+
+            #Saber a quantos pixeis corresponde o movimento de 1mm em ambas as direções (xx e yy) 
+            dpx_mm = camNozzle.MmToPx(dx, dy, sidePx, celLen)
+            
+            while c:
+                #Perguntar ao utilizador se a camera já se encontra em cima do QR
+                input("Pressione um tecla para continuar.")
+                #Enviar instruções para o raspberry detetar o qr code
+                videoRecord.recordPic("circle.png")
+
+
+                d_xy_px = vidProc.findCircles("circle.png")
+                #Converter a distância em pixeis para mm
+                d_xy_mm = np.matmul(np.linalg.inv(dpx_mm), np.array(d_xy_px))
+                d_xy_mm[0] = -d_xy_mm[0]
+                print(d_xy_mm)
+                
+                if abs(d_xy_mm[0]) <= 0.1 and abs(d_xy_mm[1]) <= 0.1:
+                    d_xy_mm[0] = 0
+                    d_xy_mm[1] = 0
+                    c = False
+
+                #Recolher distẫncia em px para o qr code
+                #Enviar para o pc a nova instrução a dar em mm
+                print(1)
+                send_message(HEADER_LENGTH, d_xy_mm, client_socket)
         
         '''
         if proc == "teste":

@@ -152,6 +152,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
         print(f"3 - Calibrate steps/mm on yy direction.")
         print(f"4 - Apply skew compensation.")
         print(f"teste_relativo - Teste da calibração relativa.")
+        print(f"teste_relativo_1 - Teste da calibração relativa.")
         print(f"testeNozzle - Encontrar o vector nozzle-camera.")
         process = input(f"{my_username} > ")
 
@@ -495,7 +496,58 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
                         a = False
                         c = False
 
+        if process == "teste_relativo_1":
+            a = True
+            c = True
+            while a:
+                message = f"teste_1"
+                send_message(HEADER_LENGTH, message, client_socket)
+                time.sleep(1)
+                give_instruction("G90", 1)
+                give_instruction("G0 X1 F100", 1)
+                give_instruction("G90", 2)
+                give_instruction("G0 X1 F100", 2)
+                
+                time.sleep(10)
+                give_instruction("G0 Y1 F100", 1)
+                give_instruction("G0 Y1 F100", 2)
 
+                #Enviar a instrução para a cabeça 1 se mover para a estimativa inicial
+                time.sleep(9)
+
+                initial_estimate_1 = np.array([float(55), float(28)])
+                #initial_estimate_2 = np.array([float(55), float(28)])
+                instruction = np.copy(initial_estimate)
+                instruction_1 = np.copy(initial_estimate_1)
+                give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+
+
+                while c:
+
+                    d1 = receive_message(HEADER_LENGTH, client_socket)
+
+                    if d1[0] != 0 and d1[1] != 0:
+                        instruction += d1
+                        give_instruction(f"G0 X{instruction[0]} Y{instruction[1]} F600", 1)
+                        #Adicionar instruções para que a cabeça 1 volte e esperar um pouco
+
+                    else:
+                        a = False
+                        c = False
+                #Enviar uma mensagem para o RP2 (que está a espera) para começar gravar
+
+                give_instruction(f"G0 X{instruction_1[0]} Y{instruction_1[1]} F600",2)
+                c = True
+                while c:
+
+                    d2 = receive_message(HEADER_LENGTH, client_socket)
+
+                    if d2[0] != 0 and d2[1] != 0:
+                        instruction_1 += d2
+                        give_instruction(f"G0 X{instruction_1[0]} Y{instruction_1[1]} F600", 2)
+                    else:
+                        a = False
+                        c = False
         '''
         if process == "teste_relativo":
 
