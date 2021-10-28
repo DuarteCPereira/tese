@@ -11,7 +11,7 @@ import detectMarker
 import vidProc
 
 from videoRecord import recordVid
-#122
+#1222
 
 def receive_message(HEADER_LENGTH, client_socket):
     a = True
