@@ -1044,8 +1044,8 @@ message = h2.read_serial_message(show=False)
 #give_instruction("G28")
 message = give_instruction("G28", 1)
 message = give_instruction("G28", 2)
-give_instruction("G0 Z10 F100", 1)
-give_instruction("G0 Z10 F100", 2)
+give_instruction("G0 X20 Z10 F100", 1)
+give_instruction("G0 X20 Y20 Z10 F100", 2)
 test_client_func(username, HEADER_LENGTH, IP, PORT)
 
 #if __name__ == "__main__":
