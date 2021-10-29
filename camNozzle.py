@@ -15,7 +15,7 @@ def printCalibrationShape():
     
     return None
 
-def movePrintCore(time, name):
+def movePrintCore(time, name, celLen):
     #Dar instrução do movimento e Gravar o video correspondente ao movimento
     
     #Gravar video
@@ -105,7 +105,7 @@ def movePrintCore(time, name):
     
     #Descomentar caso seja para dar display da figura com o plot do deslocamento
     #grid_map.createMesh(n_rows_tg, n_cols_tg, 2,np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel))
-    d, d_total = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), 2)
+    d, d_total = grid_map.dist_calc(np.asarray(cel_cord_init), np.asarray(p_after), np.asarray(start_cel), np.asarray(end_cel), celLen)
     print('A distância percorrida foi de', d[0],'[mm] em xx, e', d[1], '[mm] em yy')
     print('A distância total é de ', d_total, '[mm].')
 
@@ -137,9 +137,9 @@ def nozzleCamDistCalc(vec, d):
     vec_nozzle_cam = d + vec
     return vec_nozzle_cam
 
-def nozzleCamProc():
+def nozzleCamProc(celLen):
 
-    d, d_total, last_frame_img, intersectionPoints, p, cel, _ = movePrintCore(10, 'teste_nozzleCamProc.mp4')
+    d, d_total, last_frame_img, intersectionPoints, p, cel, _ = movePrintCore(10, 'teste_nozzleCamProc.mp4', celLen)
 
     vec = nozzleCenterDist(last_frame_img, intersectionPoints, np.asarray(p), np.asarray(cel), 2.381)
 
@@ -195,7 +195,7 @@ def MmToPx(dx_1mm, dy_1mm, sidePx, celLen):
 
 
 
-def steps_mm_cal_xx(A, time, name):
+def steps_mm_cal_xx(A, time, name, celLen):
     #beforing calling this function, M503 and M83 must be sent to printer
     #Get A parameter from M503
 
@@ -205,7 +205,7 @@ def steps_mm_cal_xx(A, time, name):
     #dx = 9.9
     
     #Make the printer move 10 mm in x again
-    _, dx, _, _, _, _, _ = movePrintCore(time, name)
+    _, dx, _, _, _, _, _ = movePrintCore(time, name, celLen)
 
     dif = dx - 10
     if abs(dif) < 0.05:
@@ -220,7 +220,7 @@ def steps_mm_cal_xx(A, time, name):
 
     return D
     
-def steps_mm_cal_yy(A, time, name):
+def steps_mm_cal_yy(A, time, name, celLen):
     #beforing calling this function, M503 and M83 must be sent to printer
     #Get A parameter from M503
 
@@ -230,7 +230,7 @@ def steps_mm_cal_yy(A, time, name):
     #dx = 9.9
     
     #Make the printer move 10 mm in x again
-    _, dy, _, _, _, _, _ = movePrintCore(time, name)
+    _, dy, _, _, _, _, _ = movePrintCore(time, name, celLen)
 
     dif = dy - 10
     if abs(dif) < 0.05:

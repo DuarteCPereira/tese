@@ -8,6 +8,7 @@ import time
 import pickle
 import videoRecord
 import detectMarker
+import vidProc
 
 from videoRecord import recordVid
 
@@ -66,14 +67,14 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
     username = my_username.encode("utf-8")
     username_header = f"{len(username):<{HEADER_LENGTH}}".encode("utf-8")
     client_socket.send(username_header + username)
-    celLen = 2
+    celLen = 1.985
     
     #Esperar por uma mensage com o processo
     while True:
         proc = receive_message(HEADER_LENGTH, client_socket)
         if proc == f"Proc1_1":
             #Enviar instruções para o raspberry processar
-            d, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+            d, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4', celLen)
             #d = np.asarray([1, 2])
             '''
             m_pickle = pickle.dumps(d)
@@ -85,14 +86,14 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             
         if proc == f"Proc2_1":
             A = receive_message(HEADER_LENGTH, client_socket)
-            D = camNozzle.steps_mm_cal_xx(A, 20, 'test.mp4')
+            D = camNozzle.steps_mm_cal_xx(A, 20, 'test.mp4', celLen)
             #Send D to RP
             #D = input(" > Insira o parametro D")                                       
             send_message(HEADER_LENGTH, message, client_socket)
             
         if proc == f"Proc3_1":
             A = receive_message(HEADER_LENGTH, client_socket)
-            D = camNozzle.steps_mm_cal_yy(A, 20, 'test.mp4')
+            D = camNozzle.steps_mm_cal_yy(A, 20, 'test.mp4', celLen)
             #Send D to RP
             #D = input(" > Insira o parametro D")
             message = D
@@ -103,14 +104,14 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             b = False
             #Enviar instruções para o raspberry processar
             while a:
-                dx, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                dx, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4', celLen)
                 print(dx)
                 #d = np.asarray([1, 2])
                 a = False
             
             while b:
                 #Enviar instruções para o raspberry processar
-                dy, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4')
+                dy, _, _, _, _, _, _ = camNozzle.movePrintCore(20, 'test.mp4', celLen)
                 print(dy)
                 b = False
 
@@ -124,14 +125,14 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             c = True
             while a:
                 #Enviar instruções para o raspberry processar
-                dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4')
+                dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4', celLen)
                 print(dx)
                 #d = np.asarray([1, 2])
                 print(sidePx, "sidePx para o mov em xx")
                 a = False
             while b:
                 #Enviar instruções para o raspberry processar
-                dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4')
+                dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4', celLen)
                 print(dy)
                 print(sidePx, "sidePx para o mov em yy")
                 b = False
@@ -170,14 +171,14 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             c = True
             while a:
                 #Enviar instruções para o raspberry processar
-                dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4')
+                dx, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test10.mp4', celLen)
                 print(dx)
                 #d = np.asarray([1, 2])
                 print(sidePx, "sidePx para o mov em xx")
                 a = False
             while b:
                 #Enviar instruções para o raspberry processar
-                dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4')
+                dy, _, _, _, _, _, sidePx = camNozzle.movePrintCore(5, 'test01.mp4', celLen)
                 print(dy)
                 print(sidePx, "sidePx para o mov em yy")
                 b = False

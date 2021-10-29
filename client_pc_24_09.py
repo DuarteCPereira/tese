@@ -172,7 +172,7 @@ def test_client_func(username, HEADER_LENGTH, IP, PORT):
             #d = pickle.loads(message)
             print(f"{username} > {d}")
             print(f"O vector recebido foi: {d} ")
-            a = False
+
 
         #Calibrar E-Steps
         if process == "2_RP1":
@@ -1043,7 +1043,9 @@ h2.flush_start_messages()
 message = h2.read_serial_message(show=False)
 #give_instruction("G28")
 message = give_instruction("G28", 1)
+message = give_instruction("G28", 2)
 give_instruction("G0 Z10 F100", 1)
+give_instruction("G0 Z10 F100", 2)
 test_client_func(username, HEADER_LENGTH, IP, PORT)
 
 #if __name__ == "__main__":
