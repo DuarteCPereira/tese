@@ -34,7 +34,7 @@ def recordPic(name):
 
     camera.resolution = (480, 320)
     camera.start_preview()
-    sleep(20)
+    sleep(5)
     camera.capture(name)
     camera.stop_preview()
     camera.close()
