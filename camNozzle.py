@@ -264,5 +264,5 @@ def getSkewCoefxy(dx, dy):
     #xytan = math.tan((math.pi/2)-angle)
     return angle, unit_vector_1, unit_vector_2
 
-#d, _, _, _, _, _, _ = movePrintCore(20, 'test.mp4')
+#d, _, _, _, _, _, _ = movePrintCore(20, 'test_RP2.mp4', 1.985)
 #nozzleCamProc()

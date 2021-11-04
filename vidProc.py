@@ -74,6 +74,10 @@ def finddirs(lines):
 def findIntPoints(img1, midFrame):
     _,binary = cv2.threshold(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY),70,200,cv2.THRESH_BINARY_INV)
     img = np.copy(img1)
+
+    #Retirar estas linhas quando a grelha nao tiver problemas
+    kernel = np.ones((5,5),np.uint8)
+    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
     #show_wait_destroy("Image", binary)
     # Create the images that will use to extract the horizontal and vertical lines
     horizontal = np.copy(binary)
